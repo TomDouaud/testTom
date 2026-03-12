@@ -39,6 +39,17 @@
                                     <button class="btn btn-warning btn-sm rounded-circle me-2" id="overlay-play-btn" style="width: 45px; height: 45px;"><i class="bi bi-play-fill" style="font-size: 1.2rem;"></i></button>
                                     <button class="btn btn-outline-light btn-sm rounded-circle me-3" id="overlay-next-btn" style="width: 40px; height: 40px;"><i class="bi bi-skip-forward-fill"></i></button>
 
+                                    <!-- Time Display -->
+                                    <div class="d-flex align-items-center me-3 text-white" style="font-size: 0.9rem;">
+                                        <span id="overlay-current-time">0:00</span>&nbsp;/&nbsp;<span id="overlay-duration">0:00</span>
+                                    </div>
+
+                                    <!-- Volume Control -->
+                                    <div class="d-flex align-items-center me-3" style="width: 100px;">
+                                        <i class="bi bi-volume-up-fill text-white me-2" id="overlay-volume-icon"></i>
+                                        <input type="range" id="overlay-volume" class="form-range" min="0" max="1" step="0.01" value="1">
+                                    </div>
+
                                     <button class="btn btn-outline-secondary btn-sm rounded-circle" id="toggle-overlay-btn" title="Hide Overlay" style="width: 35px; height: 35px;"><i class="bi bi-eye-slash"></i></button>
                                     <button class="btn btn-outline-secondary btn-sm rounded-circle ms-2" id="exit-fullscreen-btn" title="Exit Fullscreen" style="width: 35px; height: 35px;"><i class="bi bi-fullscreen-exit"></i></button>
                                 </div>
@@ -152,6 +163,10 @@
         // Overlay Controls
         const overlayPrevBtn = document.getElementById('overlay-prev-btn');
         const overlayNextBtn = document.getElementById('overlay-next-btn');
+        const overlayCurrentTime = document.getElementById('overlay-current-time');
+        const overlayDuration = document.getElementById('overlay-duration');
+        const overlayVolume = document.getElementById('overlay-volume');
+        const overlayVolumeIcon = document.getElementById('overlay-volume-icon');
 
         overlayPlayBtn.addEventListener('click', () => {
             if (audioPlayer.paused) {
@@ -172,6 +187,62 @@
             if (currentTrackIndex < trackBtns.length - 1) {
                 currentTrackIndex++;
                 loadTrack(currentTrackIndex);
+            }
+        });
+
+        // Volume Control
+        overlayVolume.addEventListener('input', (e) => {
+            audioPlayer.volume = e.target.value;
+            if (audioPlayer.volume === 0) {
+                overlayVolumeIcon.className = 'bi bi-volume-mute-fill text-white me-2';
+            } else if (audioPlayer.volume < 0.5) {
+                overlayVolumeIcon.className = 'bi bi-volume-down-fill text-white me-2';
+            } else {
+                overlayVolumeIcon.className = 'bi bi-volume-up-fill text-white me-2';
+            }
+        });
+
+        // Time Display
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        audioPlayer.addEventListener('timeupdate', () => {
+            overlayCurrentTime.textContent = formatTime(audioPlayer.currentTime);
+            overlayDuration.textContent = formatTime(audioPlayer.duration);
+        });
+
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            overlayDuration.textContent = formatTime(audioPlayer.duration);
+        });
+
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            // Only capture space if not typing in an input
+            if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') return;
+
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent scrolling
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                } else {
+                    audioPlayer.pause();
+                }
+            } else if (e.code === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentTrackIndex > 0) {
+                    currentTrackIndex--;
+                    loadTrack(currentTrackIndex);
+                }
+            } else if (e.code === 'ArrowRight') {
+                e.preventDefault();
+                if (currentTrackIndex < trackBtns.length - 1) {
+                    currentTrackIndex++;
+                    loadTrack(currentTrackIndex);
+                }
             }
         });
 
@@ -199,6 +270,16 @@
         });
 
         function enterFullscreen() {
+            // Auto-play first track if nothing is playing yet
+            if (!audioPlayer.src || audioPlayer.src.endsWith(window.location.pathname) || audioPlayer.src === "") {
+                loadTrack(0);
+
+                // Force visualizer on if it isn't already
+                if (!isVisualizerActive && typeof setupButterchurn === 'function') {
+                    document.getElementById('toggle-visualizer').click();
+                }
+            }
+
             if (!document.fullscreenElement) {
                 if (mediaDisplay.requestFullscreen) {
                     mediaDisplay.requestFullscreen();
