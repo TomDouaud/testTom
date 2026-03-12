@@ -1,0 +1,28 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ playlist_type|title }} Playlists</h2>
+    <hr class="border-secondary">
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+        {% for playlist in playlists %}
+        <div class="col">
+            <div class="card h-100 bg-dark text-white border-secondary">
+                {% if playlist.cover_image %}
+                <img src="{{ playlist.cover_image.url }}" class="card-img-top" alt="{{ playlist.title }}" style="object-fit: cover; height: 250px;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title"><a href="{% url 'playlist_detail' playlist.pk %}" class="text-warning text-decoration-none">{{ playlist.title }}</a></h5>
+                    <p class="card-text">{{ playlist.description|truncatewords:20 }}</p>
+                </div>
+                <div class="card-footer border-secondary">
+                    <small class="text-muted">{{ playlist.tracks.count }} Tracks</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No playlists found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-8">
+        <h2 class="mb-4">Current Album of the Month</h2>
+        {% if latest_album %}
+        <div class="card mb-4">
+            {% if latest_album.cover_image %}
+            <img src="{{ latest_album.cover_image.url }}" class="card-img-top" alt="{{ latest_album.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h3 class="card-title">{{ latest_album.title }} - {{ latest_album.artist }}</h3>
+                <h5 class="text-muted">{{ latest_album.month|date:"F Y" }}</h5>
+                <p class="card-text">{{ latest_album.description|linebreaksbr }}</p>
+            </div>
+        </div>
+        {% else %}
+        <p>No album of the month right now.</p>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <h3 class="mb-4">Recent Playlists</h3>
+        <div class="list-group list-group-flush bg-dark">
+            {% for playlist in recent_playlists %}
+            <a href="{% url 'playlist_detail' playlist.pk %}" class="list-group-item list-group-item-action bg-dark text-light border-secondary">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 text-warning">{{ playlist.title }}</h5>
+                    <small>{{ playlist.created_at|date:"M d, Y" }}</small>
+                </div>
+                <p class="mb-1">{{ playlist.get_playlist_type_display }}</p>
+            </a>
+            {% empty %}
+            <p>No playlists available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

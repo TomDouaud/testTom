@@ -1,0 +1,264 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="container mt-5 mb-5 pb-5">
+    <div class="row">
+        <div class="col-md-8 text-center" id="player-container">
+            <h2 class="text-warning mb-3">{{ playlist.title }}</h2>
+            <div id="media-display" class="mb-4" style="height: 400px; background-color: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                {% if playlist.playlist_type == 'basic' %}
+                    <img id="current-track-image" src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}" alt="Track Image" style="max-height: 100%; max-width: 100%; object-fit: contain; z-index: 1;">
+                {% elif playlist.playlist_type == 'movie' %}
+                    <img id="slideshow-image" src="" alt="Movie Image" style="max-height: 100%; max-width: 100%; object-fit: contain; z-index: 1;">
+                {% endif %}
+                <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; pointer-events: none; z-index: 10;"></canvas>
+            </div>
+
+            <div class="audio-controls bg-dark p-3 rounded d-flex flex-column align-items-center mb-3">
+                <h5 id="current-track-title" class="mb-3">Select a track</h5>
+                <audio id="audio-player" controls class="w-100" style="outline: none;">
+                    Your browser does not support the audio element.
+                </audio>
+                <div class="mt-3">
+                    <button class="btn btn-outline-warning btn-sm me-2" id="prev-btn"><i class="bi bi-skip-backward-fill"></i> Prev</button>
+                    <button class="btn btn-outline-warning btn-sm me-2" id="next-btn">Next <i class="bi bi-skip-forward-fill"></i></button>
+                    <button class="btn btn-outline-info btn-sm me-2" id="toggle-visualizer"><i class="bi bi-magic"></i> Toggle Visualizer</button>
+                    <button class="btn btn-outline-light btn-sm" id="fullscreen-btn"><i class="bi bi-arrows-fullscreen"></i> Fullscreen</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <h4 class="mb-3">Tracks</h4>
+            <div class="list-group list-group-flush bg-dark border border-secondary rounded" id="playlist-tracks">
+                {% for track in tracks %}
+                <button type="button" class="list-group-item list-group-item-action bg-dark text-light border-secondary track-btn"
+                        data-src="{{ track.audio_file.url }}"
+                        data-title="{{ track.title }}"
+                        data-image="{% if track.track_image %}{{ track.track_image.url }}{% elif playlist.cover_image %}{{ playlist.cover_image.url }}{% endif %}">
+                    {{ forloop.counter }}. {{ track.title }}
+                </button>
+                {% empty %}
+                <p class="p-3">No tracks in this playlist.</p>
+                {% endfor %}
+            </div>
+            {% if playlist.description %}
+            <div class="mt-4 p-3 bg-dark rounded text-light border border-secondary">
+                <h5>Description</h5>
+                <p>{{ playlist.description|linebreaksbr }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const audioPlayer = document.getElementById('audio-player');
+        const trackBtns = document.querySelectorAll('.track-btn');
+        const currentTrackTitle = document.getElementById('current-track-title');
+        const currentTrackImage = document.getElementById('current-track-image');
+        const slideshowImage = document.getElementById('slideshow-image');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        let currentTrackIndex = 0;
+        let playlistType = "{{ playlist.playlist_type }}";
+
+        // Movie Images Array
+        let movieImages = [];
+        {% if movie_images %}
+            {% for img in movie_images %}
+                movieImages.push("{{ img.image.url }}");
+            {% endfor %}
+        {% endif %}
+
+        let slideshowInterval;
+        let currentImageIndex = 0;
+
+        function startSlideshow() {
+            if (movieImages.length > 0 && slideshowImage) {
+                slideshowImage.src = movieImages[0];
+                clearInterval(slideshowInterval);
+                slideshowInterval = setInterval(() => {
+                    currentImageIndex = (currentImageIndex + 1) % movieImages.length;
+                    slideshowImage.src = movieImages[currentImageIndex];
+                }, 5000); // Change image every 5 seconds
+            }
+        }
+
+        function stopSlideshow() {
+            clearInterval(slideshowInterval);
+        }
+
+        function loadTrack(index) {
+            if(index >= 0 && index < trackBtns.length) {
+                const btn = trackBtns[index];
+                audioPlayer.src = btn.getAttribute('data-src');
+                currentTrackTitle.textContent = btn.getAttribute('data-title');
+
+                if (playlistType === 'basic' && currentTrackImage) {
+                    const imgSrc = btn.getAttribute('data-image');
+                    if (imgSrc) {
+                        currentTrackImage.src = imgSrc;
+                    }
+                }
+
+                trackBtns.forEach(b => b.classList.remove('active', 'text-warning', 'fw-bold'));
+                btn.classList.add('active', 'text-warning', 'fw-bold');
+
+                audioPlayer.play();
+
+                if (playlistType === 'movie') {
+                    startSlideshow();
+                }
+            }
+        }
+
+        trackBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                currentTrackIndex = index;
+                loadTrack(currentTrackIndex);
+            });
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            if (currentTrackIndex < trackBtns.length - 1) {
+                currentTrackIndex++;
+                loadTrack(currentTrackIndex);
+            } else {
+                stopSlideshow();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentTrackIndex > 0) {
+                currentTrackIndex--;
+                loadTrack(currentTrackIndex);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentTrackIndex < trackBtns.length - 1) {
+                currentTrackIndex++;
+                loadTrack(currentTrackIndex);
+            }
+        });
+
+        audioPlayer.addEventListener('pause', stopSlideshow);
+        audioPlayer.addEventListener('play', () => {
+            if (playlistType === 'movie') startSlideshow();
+        });
+
+        // Optional Fullscreen Logic
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const mediaDisplay = document.getElementById('media-display');
+
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                if (mediaDisplay.requestFullscreen) {
+                    mediaDisplay.requestFullscreen();
+                } else if (mediaDisplay.webkitRequestFullscreen) { /* Safari */
+                    mediaDisplay.webkitRequestFullscreen();
+                } else if (mediaDisplay.msRequestFullscreen) { /* IE11 */
+                    mediaDisplay.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // Web Audio API Visualizer
+        const toggleVisualizer = document.getElementById('toggle-visualizer');
+        const canvas = document.getElementById('visualizer-canvas');
+        const ctx = canvas.getContext('2d');
+        let audioCtx, analyser, source, dataArray, bufferLength;
+        let isVisualizerActive = false;
+        let animationId;
+
+        function setupAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(audioPlayer);
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 256;
+                bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+            }
+        }
+
+        // Improved Visualizer function
+        function drawVisualizer() {
+            if (!isVisualizerActive) return;
+            animationId = requestAnimationFrame(drawVisualizer);
+
+            analyser.getByteFrequencyData(dataArray);
+
+            // Resize canvas to fit container dynamically
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) * 0.5;
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = 'rgba(255, 165, 0, 0.5)'; // Orange vibe
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            for(let i = 0; i < bufferLength; i++) {
+                const barHeight = dataArray[i] * 0.8;
+
+                // Angle for circular visualizer
+                const rads = Math.PI * 2 / bufferLength;
+                const x = centerX + Math.cos(rads * i) * (radius);
+                const y = centerY + Math.sin(rads * i) * (radius);
+                const xEnd = centerX + Math.cos(rads * i) * (radius + barHeight);
+                const yEnd = centerY + Math.sin(rads * i) * (radius + barHeight);
+
+                // Color mapping: Purple to Orange
+                const r = barHeight + (25 * (i/bufferLength));
+                const g = 100 * (i/bufferLength);
+                const b = 200 - (100 * (i/bufferLength));
+
+                ctx.strokeStyle = `rgb(${r},${g},${b})`;
+                ctx.lineWidth = 3;
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(xEnd, yEnd);
+                ctx.stroke();
+            }
+        }
+
+        toggleVisualizer.addEventListener('click', () => {
+            setupAudioContext();
+
+            // Must resume audio context after user interaction
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            isVisualizerActive = !isVisualizerActive;
+            if (isVisualizerActive) {
+                canvas.style.display = 'block';
+                drawVisualizer();
+            } else {
+                canvas.style.display = 'none';
+                cancelAnimationFrame(animationId);
+            }
+        });
+
+    });
+</script>
+{% endblock %}
