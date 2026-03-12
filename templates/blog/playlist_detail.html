@@ -54,6 +54,11 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Butterchurn (WebGL Milkdrop) -->
+<script src="https://unpkg.com/lodash"></script>
+<script src="https://unpkg.com/butterchurn"></script>
+<script src="https://unpkg.com/butterchurn-presets"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const audioPlayer = document.getElementById('audio-player');
@@ -172,77 +177,72 @@
             }
         });
 
-        // Web Audio API Visualizer
+        // Butterchurn Visualizer
         const toggleVisualizer = document.getElementById('toggle-visualizer');
         const canvas = document.getElementById('visualizer-canvas');
-        const ctx = canvas.getContext('2d');
-        let audioCtx, analyser, source, dataArray, bufferLength;
+
+        let audioCtx, source, visualizer;
         let isVisualizerActive = false;
         let animationId;
+        let presetCycleInterval;
 
-        function setupAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                source = audioCtx.createMediaElementSource(audioPlayer);
-                source.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                analyser.fftSize = 256;
-                bufferLength = analyser.frequencyBinCount;
-                dataArray = new Uint8Array(bufferLength);
+        function loadRandomPreset() {
+            if (visualizer) {
+                const presets = butterchurnPresets.getPresets();
+                const presetKeys = Object.keys(presets);
+                const randomPreset = presetKeys[Math.floor(Math.random() * presetKeys.length)];
+                visualizer.loadPreset(presets[randomPreset], 2.0); // 2 second blend
             }
         }
 
-        // Improved Visualizer function
+        function setupButterchurn() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+
+                visualizer = butterchurn.default.createVisualizer(audioCtx, canvas, {
+                    width: canvas.width,
+                    height: canvas.height
+                });
+
+                source = audioCtx.createMediaElementSource(audioPlayer);
+                source.connect(audioCtx.destination);
+                visualizer.connectAudio(source);
+
+                loadRandomPreset();
+
+                // Cycle preset every 15 seconds
+                presetCycleInterval = setInterval(loadRandomPreset, 15000);
+
+                // Handle Resize dynamically
+                window.addEventListener('resize', () => {
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = canvas.parentElement.clientHeight;
+                    visualizer.setRendererSize(canvas.width, canvas.height);
+                });
+                // Check if full screen has changed to resize properly
+                document.addEventListener('fullscreenchange', () => {
+                    setTimeout(() => {
+                        canvas.width = canvas.parentElement.clientWidth;
+                        canvas.height = canvas.parentElement.clientHeight;
+                        if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
+                    }, 100);
+                });
+            }
+        }
+
         function drawVisualizer() {
             if (!isVisualizerActive) return;
             animationId = requestAnimationFrame(drawVisualizer);
-
-            analyser.getByteFrequencyData(dataArray);
-
-            // Resize canvas to fit container dynamically
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const radius = Math.min(centerX, centerY) * 0.5;
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.strokeStyle = 'rgba(255, 165, 0, 0.5)'; // Orange vibe
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            for(let i = 0; i < bufferLength; i++) {
-                const barHeight = dataArray[i] * 0.8;
-
-                // Angle for circular visualizer
-                const rads = Math.PI * 2 / bufferLength;
-                const x = centerX + Math.cos(rads * i) * (radius);
-                const y = centerY + Math.sin(rads * i) * (radius);
-                const xEnd = centerX + Math.cos(rads * i) * (radius + barHeight);
-                const yEnd = centerY + Math.sin(rads * i) * (radius + barHeight);
-
-                // Color mapping: Purple to Orange
-                const r = barHeight + (25 * (i/bufferLength));
-                const g = 100 * (i/bufferLength);
-                const b = 200 - (100 * (i/bufferLength));
-
-                ctx.strokeStyle = `rgb(${r},${g},${b})`;
-                ctx.lineWidth = 3;
-
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(xEnd, yEnd);
-                ctx.stroke();
+            if (visualizer) {
+                visualizer.render();
             }
         }
 
         toggleVisualizer.addEventListener('click', () => {
-            setupAudioContext();
+            setupButterchurn();
 
             // Must resume audio context after user interaction
             if (audioCtx.state === 'suspended') {
