@@ -8,6 +8,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('reset-request/', views.password_reset_request, name='password_reset_request'),
     path('albums/', views.album_list, name='album_list'),
+    path('album/<int:pk>/', views.album_detail, name='album_detail'),
     path('playlists/<str:playlist_type>/', views.playlist_list, name='playlist_list'),
     path('playlist/<int:pk>/', views.playlist_detail, name='playlist_detail'),
 ]

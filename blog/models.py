@@ -16,6 +16,18 @@ class AlbumOfTheMonth(models.Model):
     def __str__(self):
         return f"{self.title} - {self.artist} ({self.month.strftime('%B %Y')})"
 
+class AlbumTrack(models.Model):
+    album = models.ForeignKey(AlbumOfTheMonth, related_name='tracks', on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    audio_file = models.FileField(upload_to='album_tracks/', help_text="Upload your MP3 file here.")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
 class Playlist(models.Model):
     TYPE_CHOICES = (
         ('basic', 'Basic Playlist'),

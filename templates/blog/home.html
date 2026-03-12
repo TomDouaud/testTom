@@ -6,14 +6,17 @@
         <h2 class="mb-4">Current Album of the Month</h2>
         {% if latest_album %}
         <div class="card mb-4">
-            {% if latest_album.cover_image %}
-            <img src="{{ latest_album.cover_image.url }}" class="card-img-top" alt="{{ latest_album.title }}">
-            {% endif %}
-            <div class="card-body">
-                <h3 class="card-title">{{ latest_album.title }} - {{ latest_album.artist }}</h3>
-                <h5 class="text-muted">{{ latest_album.month|date:"F Y" }}</h5>
-                <p class="card-text">{{ latest_album.description|linebreaksbr }}</p>
-            </div>
+            <a href="{% url 'album_detail' latest_album.pk %}" class="text-decoration-none">
+                {% if latest_album.cover_image %}
+                <img src="{{ latest_album.cover_image.url }}" class="card-img-top" alt="{{ latest_album.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h3 class="card-title text-warning">{{ latest_album.title }} - {{ latest_album.artist }}</h3>
+                    <h5 class="text-muted">{{ latest_album.month|date:"F Y" }}</h5>
+                    <p class="card-text text-light">{{ latest_album.description|linebreaksbr }}</p>
+                    <p class="card-text mt-3"><small class="text-warning">Écouter les morceaux de l'album &rarr;</small></p>
+                </div>
+            </a>
         </div>
         {% else %}
         <p>No album of the month right now.</p>

@@ -19,6 +19,15 @@ def album_list(request):
     return render(request, 'blog/album_list.html', {'albums': albums})
 
 @login_required
+def album_detail(request, pk):
+    album = get_object_or_404(AlbumOfTheMonth, pk=pk)
+    tracks = album.tracks.all()
+    return render(request, 'blog/album_detail.html', {
+        'album': album,
+        'tracks': tracks,
+    })
+
+@login_required
 def playlist_list(request, playlist_type='basic'):
     playlists = Playlist.objects.filter(playlist_type=playlist_type)
     return render(request, 'blog/playlist_list.html', {

@@ -1,11 +1,16 @@
 from django.contrib import admin
-from .models import AlbumOfTheMonth, Playlist, Track, MovieImage, PasswordResetRequest
+from .models import AlbumOfTheMonth, AlbumTrack, Playlist, Track, MovieImage, PasswordResetRequest
+
+class AlbumTrackInline(admin.TabularInline):
+    model = AlbumTrack
+    extra = 1
 
 @admin.register(AlbumOfTheMonth)
 class AlbumOfTheMonthAdmin(admin.ModelAdmin):
     list_display = ('title', 'artist', 'month', 'created_at')
     search_fields = ('title', 'artist')
     list_filter = ('month',)
+    inlines = [AlbumTrackInline]
 
 class TrackInline(admin.TabularInline):
     model = Track

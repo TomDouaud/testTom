@@ -12,12 +12,12 @@
                 <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }}" style="object-fit: cover; height: 250px;">
                 {% endif %}
                 <div class="card-body">
-                    <h5 class="card-title text-warning">{{ album.title }}</h5>
+                    <h5 class="card-title"><a href="{% url 'album_detail' album.pk %}" class="text-warning text-decoration-none">{{ album.title }}</a></h5>
                     <h6 class="card-subtitle mb-2 text-muted">{{ album.artist }} - {{ album.month|date:"F Y" }}</h6>
                     <p class="card-text">{{ album.description|truncatewords:20 }}</p>
                 </div>
                 <div class="card-footer border-secondary">
-                    <small class="text-muted">Added on {{ album.created_at|date:"M d, Y" }}</small>
+                    <small class="text-muted"><a href="{% url 'album_detail' album.pk %}" class="text-warning">Écouter &rarr;</a></small>
                 </div>
             </div>
         </div>
