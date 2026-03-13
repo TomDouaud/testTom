@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>{{ playlist_type|title }} Playlists</h2>
+    <h2>Playlists {{ playlist_type|title }}</h2>
     <hr class="border-secondary">
     <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
         {% for playlist in playlists %}
@@ -16,12 +16,12 @@
                     <p class="card-text">{{ playlist.description|truncatewords:20 }}</p>
                 </div>
                 <div class="card-footer border-secondary">
-                    <small class="text-muted">{{ playlist.tracks.count }} Tracks</small>
+                    <small class="text-muted">{{ playlist.tracks.count }} Titres</small>
                 </div>
             </div>
         </div>
         {% empty %}
-        <p>No playlists found.</p>
+        <p>Aucune playlist trouvée.</p>
         {% endfor %}
     </div>
 </div>
