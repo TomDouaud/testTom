@@ -3,6 +3,9 @@ from django.contrib.auth.decorators import login_required
 from .models import AlbumOfTheMonth, Playlist, Track, PasswordResetRequest
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+import zipfile
+import os
 
 @login_required
 def home(request):
@@ -22,10 +25,27 @@ def album_list(request):
 def album_detail(request, pk):
     album = get_object_or_404(AlbumOfTheMonth, pk=pk)
     tracks = album.tracks.all()
+    past_albums = AlbumOfTheMonth.objects.exclude(pk=pk).order_by('-month')
     return render(request, 'blog/album_detail.html', {
         'album': album,
         'tracks': tracks,
+        'past_albums': past_albums,
     })
+
+@login_required
+def download_album_zip(request, pk):
+    album = get_object_or_404(AlbumOfTheMonth, pk=pk)
+    tracks = album.tracks.all()
+
+    response = HttpResponse(content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename="{album.title}.zip"'
+
+    with zipfile.ZipFile(response, 'w') as zip_file:
+        for track in tracks:
+            if track.audio_file and os.path.exists(track.audio_file.path):
+                zip_file.write(track.audio_file.path, os.path.basename(track.audio_file.path))
+
+    return response
 
 @login_required
 def playlist_list(request, playlist_type='basic'):

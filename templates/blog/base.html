@@ -50,7 +50,10 @@
                     </li>
                 </ul>
                 <div class="d-flex">
-                    <a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">Logout</button>
+                    </form>
                 </div>
             </div>
         </div>

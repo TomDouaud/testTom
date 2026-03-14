@@ -9,38 +9,38 @@
                 {% if playlist.playlist_type == 'basic' %}
                     <img id="current-track-image" src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}" alt="Track Image" style="max-height: 100%; max-width: 100%; object-fit: contain; z-index: 1;">
                 {% elif playlist.playlist_type == 'movie' %}
-                    <img id="slideshow-image" src="" alt="Movie Image" style="max-height: 100%; max-width: 100%; object-fit: contain; z-index: 1;">
+                    <img id="slideshow-image" src="" alt="Movie Image" style="max-height: 100%; max-width: 100%; object-fit: contain; z-index: 1; display: none;">
                 {% endif %}
                 <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; pointer-events: none; z-index: 10;"></canvas>
 
                 <!-- Fullscreen Overlay UI -->
-                <div id="fullscreen-overlay" style="position: absolute; bottom: 20px; left: 20px; right: 20px; z-index: 20; display: none; background: rgba(0, 0, 0, 0.7); border-radius: 12px; padding: 15px; border: 1px solid #444; backdrop-filter: blur(10px); transition: opacity 0.3s ease;">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center" style="max-width: 70%;">
-                            <img id="overlay-image" src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}" alt="Cover" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;">
-                            <div class="text-start overflow-hidden">
-                                <h5 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1.1rem; max-width: 100%;">Select a track</h5>
-                                <small class="text-warning">{{ playlist.title }}</small>
+                <div id="fullscreen-overlay" style="position: absolute; bottom: 20px; left: 10px; right: 10px; z-index: 20; display: none; background: rgba(0, 0, 0, 0.7); border-radius: 12px; padding: 10px; border: 1px solid #444; backdrop-filter: blur(10px); transition: opacity 0.3s ease;">
+                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-2 mb-md-0 w-100 w-md-auto justify-content-center justify-content-md-start">
+                            <img id="overlay-image" src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}" alt="Cover" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 15px;">
+                            <div class="text-start overflow-hidden" style="max-width: 200px;">
+                                <h5 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Select a track</h5>
+                                <small class="text-warning text-truncate d-block">{{ playlist.title }}</small>
                             </div>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-outline-light btn-sm rounded-circle me-2" id="overlay-prev-btn" style="width: 40px; height: 40px;"><i class="bi bi-skip-backward-fill"></i></button>
-                            <button class="btn btn-warning btn-sm rounded-circle me-2" id="overlay-play-btn" style="width: 45px; height: 45px;"><i class="bi bi-play-fill" style="font-size: 1.2rem;"></i></button>
-                            <button class="btn btn-outline-light btn-sm rounded-circle me-3" id="overlay-next-btn" style="width: 40px; height: 40px;"><i class="bi bi-skip-forward-fill"></i></button>
+                        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
+                            <button class="btn btn-outline-light btn-sm rounded-circle" id="overlay-prev-btn" style="width: 35px; height: 35px;"><i class="bi bi-skip-backward-fill"></i></button>
+                            <button class="btn btn-warning btn-sm rounded-circle" id="overlay-play-btn" style="width: 40px; height: 40px;"><i class="bi bi-play-fill" style="font-size: 1.2rem;"></i></button>
+                            <button class="btn btn-outline-light btn-sm rounded-circle" id="overlay-next-btn" style="width: 35px; height: 35px;"><i class="bi bi-skip-forward-fill"></i></button>
 
                             <!-- Time Display -->
-                            <div class="d-flex align-items-center me-3 text-white" style="font-size: 0.9rem;">
+                            <div class="d-flex align-items-center text-white mx-2 d-none d-sm-flex" style="font-size: 0.8rem;">
                                 <span id="overlay-current-time">0:00</span>&nbsp;/&nbsp;<span id="overlay-duration">0:00</span>
                             </div>
 
                             <!-- Volume Control -->
-                            <div class="d-flex align-items-center me-3" style="width: 100px;">
-                                <i class="bi bi-volume-up-fill text-white me-2" id="overlay-volume-icon"></i>
+                            <div class="d-flex align-items-center mx-2 d-none d-sm-flex" style="width: 80px;">
+                                <i class="bi bi-volume-up-fill text-white me-1" id="overlay-volume-icon"></i>
                                 <input type="range" id="overlay-volume" class="form-range" min="0" max="1" step="0.01" value="1">
                             </div>
 
                             <button class="btn btn-outline-secondary btn-sm rounded-circle" id="toggle-overlay-btn" title="Hide Overlay" style="width: 35px; height: 35px;"><i class="bi bi-eye-slash"></i></button>
-                            <button class="btn btn-outline-secondary btn-sm rounded-circle ms-2" id="exit-fullscreen-btn" title="Exit Fullscreen" style="width: 35px; height: 35px;"><i class="bi bi-fullscreen-exit"></i></button>
+                            <button class="btn btn-outline-secondary btn-sm rounded-circle" id="exit-fullscreen-btn" title="Exit Fullscreen" style="width: 35px; height: 35px;"><i class="bi bi-fullscreen-exit"></i></button>
                         </div>
                     </div>
                 </div>
@@ -121,6 +121,7 @@
         function startSlideshow() {
             if (movieImages.length > 0 && slideshowImage) {
                 slideshowImage.src = movieImages[0];
+                slideshowImage.style.display = "block";
                 clearInterval(slideshowInterval);
                 slideshowInterval = setInterval(() => {
                     currentImageIndex = (currentImageIndex + 1) % movieImages.length;

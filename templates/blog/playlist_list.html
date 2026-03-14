@@ -1,28 +1,47 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>{{ playlist_type|title }} Playlists</h2>
-    <hr class="border-secondary">
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+<div class="container mt-5 mb-5 pb-5">
+    <h2 class="text-center text-warning mb-5">
+        {% if playlist_type == 'basic' %}
+            Playlists Classiques
+        {% else %}
+            Musiques de Films
+        {% endif %}
+    </h2>
+
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-4 justify-content-center">
         {% for playlist in playlists %}
         <div class="col">
-            <div class="card h-100 bg-dark text-white border-secondary">
-                {% if playlist.cover_image %}
-                <img src="{{ playlist.cover_image.url }}" class="card-img-top" alt="{{ playlist.title }}" style="object-fit: cover; height: 250px;">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title"><a href="{% url 'playlist_detail' playlist.pk %}" class="text-warning text-decoration-none">{{ playlist.title }}</a></h5>
-                    <p class="card-text">{{ playlist.description|truncatewords:20 }}</p>
+            <a href="{% url 'playlist_detail' playlist.pk %}" class="text-decoration-none">
+                <div class="ratio ratio-1x1 shadow-sm rounded overflow-hidden" style="border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s;">
+                    {% if playlist.cover_image %}
+                        <img src="{{ playlist.cover_image.url }}" alt="{{ playlist.title }}" class="w-100 h-100 object-fit-cover hover-zoom">
+                    {% else %}
+                        <img src="/static/images/default.jpg" alt="{{ playlist.title }}" class="w-100 h-100 object-fit-cover hover-zoom">
+                    {% endif %}
                 </div>
-                <div class="card-footer border-secondary">
-                    <small class="text-muted">{{ playlist.tracks.count }} Tracks</small>
-                </div>
-            </div>
+            </a>
         </div>
         {% empty %}
-        <p>No playlists found.</p>
+        <div class="col-12 text-center">
+            <p class="text-muted">Aucune playlist disponible.</p>
+        </div>
         {% endfor %}
     </div>
 </div>
+
+<style>
+    .hover-zoom {
+        transition: transform 0.3s ease;
+    }
+    .ratio:hover .hover-zoom {
+        transform: scale(1.05);
+    }
+    .ratio:hover {
+        border-color: #ffd700 !important;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5) !important;
+    }
+</style>
 {% endblock %}
