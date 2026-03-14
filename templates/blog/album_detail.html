@@ -2,18 +2,6 @@
 
 {% block content %}
 <style>
-    /* Specific styling to override the dark theme for this page */
-    body {
-        background-color: #fff !important;
-        background-image: none !important;
-        color: #333 !important;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    }
-
-    .navbar {
-        background-color: #000 !important;
-    }
-
     .album-page-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -172,25 +160,26 @@
         background-color: #dcedc8; /* Light green background */
         padding: 30px;
         min-height: 100vh;
+        border-radius: 8px;
     }
 
     .article-title {
         font-weight: bold;
         text-transform: uppercase;
         margin-bottom: 5px;
-        color: #333;
+        color: #222;
     }
 
     .article-subtitle {
         font-weight: bold;
         margin-bottom: 30px;
-        color: #333;
+        color: #444;
     }
 
     .article-content {
         font-size: 0.95rem;
         line-height: 1.6;
-        color: #333;
+        color: #222;
     }
 
     .article-content p {
@@ -201,7 +190,7 @@
         font-size: 1.1rem;
         margin-top: 25px;
         margin-bottom: 15px;
-        color: #333;
+        color: #222;
         text-transform: none;
     }
 
@@ -215,7 +204,7 @@
         font-weight: bold;
         line-height: 1.5;
         margin-bottom: 30px;
-        color: #000;
+        color: #fff;
         text-transform: none;
         letter-spacing: normal;
     }
@@ -223,7 +212,7 @@
     .sub-intro-text {
         font-size: 1rem;
         margin-bottom: 40px;
-        color: #333;
+        color: #d8c39e;
     }
 
     .past-album-item {
@@ -231,11 +220,11 @@
         align-items: center;
         margin-bottom: 30px;
         text-decoration: none;
-        color: #333;
+        color: #fff;
     }
 
     .past-album-item:hover {
-        color: #000;
+        color: #d8c39e;
     }
 
     .past-album-cover {
@@ -248,7 +237,7 @@
 
     .past-album-date {
         font-size: 1rem;
-        color: #333;
+        color: #d8c39e;
     }
 </style>
 
@@ -294,17 +283,19 @@
             <!-- Hidden Audio Element -->
             <audio id="audio-player" preload="metadata" style="display:none;"></audio>
 
-            <!-- Hidden Track Data -->
-            <div id="track-data" style="display: none;">
+            <!-- Track List -->
+            <div id="track-list" class="mt-3 list-group" style="max-height: 150px; overflow-y: auto; font-size: 0.85rem; border-radius: 0;">
                 {% for track in tracks %}
-                    <div class="track-item" data-src="{{ track.audio_file.url }}" data-title="{{ track.title }}"></div>
+                    <button class="list-group-item list-group-item-action track-item bg-dark text-light border-secondary" data-src="{{ track.audio_file.url }}" data-title="{{ track.title }}" style="padding: 5px 10px;">
+                        {{ forloop.counter }}. {{ track.title }}
+                    </button>
                 {% endfor %}
             </div>
 
-            <div class="album-info-section">
-                <p>L'album :</p>
-                <a href="{% url 'download_album_zip' album.pk %}" class="album-link d-block mt-3 mb-1">{{ album.title }}</a>
-                <p class="album-size">(Télécharger ZIP)</p>
+            <div class="album-info-section mt-4">
+                <p style="color: #d8c39e; margin-bottom: 5px;">L'album :</p>
+                <a href="{% url 'download_album_zip' album.pk %}" class="album-link d-block mt-1 mb-1">{{ album.title }}</a>
+                <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
                 <p class="mt-4 mb-2">At home...</p>
                 {% if album.cover_image %}
@@ -467,8 +458,18 @@
             currentTrackTitle.textContent = item.getAttribute('data-title');
             overlayTitle.textContent = item.getAttribute('data-title');
 
+            trackItems.forEach(t => t.classList.remove('active', 'text-warning'));
+            item.classList.add('active', 'text-warning');
+
             audioPlayer.play();
         }
+
+        trackItems.forEach((btn, originalIndex) => {
+            btn.addEventListener('click', () => {
+                currentTrackIndex = playQueue.indexOf(originalIndex);
+                loadTrack(currentTrackIndex);
+            });
+        });
 
         function togglePlay() {
             if (audioPlayer.src === "" || audioPlayer.src === window.location.href) {

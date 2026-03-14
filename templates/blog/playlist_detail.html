@@ -1,95 +1,235 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
+<style>
+    .audio-player-container {
+        border: 1px solid #e0cdb2;
+        background-color: #fff;
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+
+    .player-cover-area {
+        height: 350px;
+        width: 100%;
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .player-controls-area {
+        background-color: #e6cda3; /* Beige background from image */
+        padding: 15px;
+        padding-bottom: 5px;
+    }
+
+    .controls-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .control-btn {
+        background: none;
+        border: none;
+        color: #3f51b5; /* Blue icons */
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .control-btn:hover {
+        color: #283593;
+    }
+
+    .progress-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.75rem;
+        color: #fff;
+    }
+
+    .progress-bar-wrap {
+        flex-grow: 1;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: #3f51b5; /* Blue progress bar */
+        width: 0%;
+        position: relative;
+    }
+
+    .track-info-area {
+        background-color: #e6cda3;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .track-name {
+        color: #3f51b5;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .volume-btn {
+        background: #3f51b5;
+        color: #fff;
+        border: none;
+        width: 15px;
+        height: 25px;
+        cursor: pointer;
+    }
+
+    .movie-slide-img {
+        width: 100vw;
+        height: 100vh;
+        object-fit: contain; /* ensures image fits without stretching */
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 5;
+    }
+</style>
+
 <div class="container mt-5 mb-5 pb-5">
     <div class="row">
-        <div class="col-md-8 text-center" id="player-container">
-            <h2 class="text-warning mb-3">{{ playlist.title }}</h2>
-            <div id="media-display" class="mb-4" style="height: 400px; background-color: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
-                {% if playlist.playlist_type == 'basic' %}
-                    <img id="current-track-image" src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}" alt="Track Image" style="max-height: 100%; max-width: 100%; object-fit: contain; z-index: 1;">
-                {% elif playlist.playlist_type == 'movie' %}
-                    <img id="slideshow-image" src="" alt="Movie Image" style="max-height: 100%; max-width: 100%; object-fit: contain; z-index: 1; display: none;">
-                {% endif %}
-                <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; pointer-events: none; z-index: 10;"></canvas>
+        <!-- Playlist details & cover -->
+        <div class="col-md-5 mb-4 text-center">
+            {% if playlist.cover_image %}
+                <img src="{{ playlist.cover_image.url }}" class="img-fluid rounded border border-secondary mb-3 shadow" alt="{{ playlist.title }}" style="max-height: 300px; object-fit: cover;">
+            {% endif %}
+            <h3 class="text-warning fw-bold">{{ playlist.title }}</h3>
+            <span class="badge bg-secondary mb-3">{{ playlist.get_playlist_type_display }}</span>
+            <p class="text-light" style="font-size: 1.1rem; line-height: 1.6;">{{ playlist.description|linebreaksbr }}</p>
+        </div>
 
-                <!-- Fullscreen Overlay UI -->
-                <div id="fullscreen-overlay" style="position: absolute; bottom: 20px; left: 10px; right: 10px; z-index: 20; display: none; background: rgba(0, 0, 0, 0.7); border-radius: 12px; padding: 10px; border: 1px solid #444; backdrop-filter: blur(10px); transition: opacity 0.3s ease;">
-                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
-                        <div class="d-flex align-items-center mb-2 mb-md-0 w-100 w-md-auto justify-content-center justify-content-md-start">
-                            <img id="overlay-image" src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}" alt="Cover" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 15px;">
-                            <div class="text-start overflow-hidden" style="max-width: 200px;">
-                                <h5 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Select a track</h5>
-                                <small class="text-warning text-truncate d-block">{{ playlist.title }}</small>
+        <!-- Player and track list -->
+        <div class="col-md-7">
+            {% if tracks %}
+                <div class="d-flex flex-column align-items-center mb-4">
+                    <div class="audio-player-container">
+                        <div class="player-cover-area">
+                            <!-- Blank area to match Album style -->
+                        </div>
+
+                        <div class="player-controls-area">
+                            <div class="controls-row">
+                                <button class="control-btn" id="shuffle-btn"><i class="bi bi-shuffle"></i></button>
+                                <button class="control-btn" id="repeat-btn"><i class="bi bi-arrow-repeat"></i></button>
+                                <button class="control-btn" id="prev-btn"><i class="bi bi-rewind-fill"></i></button>
+                                <button class="control-btn" id="play-pause-btn"><i class="bi bi-play-fill"></i></button>
+                                <button class="control-btn" id="next-btn"><i class="bi bi-fast-forward-fill"></i></button>
+                                <button class="control-btn" id="stop-btn"><i class="bi bi-stop-fill"></i></button>
+                                <button class="control-btn ms-2" id="toggle-visualizer-btn" title="Fullscreen Visualizer"><i class="bi bi-magic"></i></button>
+                            </div>
+
+                            <div class="progress-row">
+                                <span id="current-time">00:00</span>
+                                <div class="progress-bar-wrap" id="progress-container">
+                                    <div class="progress-bar-fill" id="progress-bar"></div>
+                                </div>
+                                <span id="duration-time">00:00</span>
                             </div>
                         </div>
-                        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
-                            <button class="btn btn-outline-light btn-sm rounded-circle" id="overlay-prev-btn" style="width: 35px; height: 35px;"><i class="bi bi-skip-backward-fill"></i></button>
-                            <button class="btn btn-warning btn-sm rounded-circle" id="overlay-play-btn" style="width: 40px; height: 40px;"><i class="bi bi-play-fill" style="font-size: 1.2rem;"></i></button>
-                            <button class="btn btn-outline-light btn-sm rounded-circle" id="overlay-next-btn" style="width: 35px; height: 35px;"><i class="bi bi-skip-forward-fill"></i></button>
 
-                            <!-- Time Display -->
-                            <div class="d-flex align-items-center text-white mx-2 d-none d-sm-flex" style="font-size: 0.8rem;">
-                                <span id="overlay-current-time">0:00</span>&nbsp;/&nbsp;<span id="overlay-duration">0:00</span>
-                            </div>
-
-                            <!-- Volume Control -->
-                            <div class="d-flex align-items-center mx-2 d-none d-sm-flex" style="width: 80px;">
-                                <i class="bi bi-volume-up-fill text-white me-1" id="overlay-volume-icon"></i>
-                                <input type="range" id="overlay-volume" class="form-range" min="0" max="1" step="0.01" value="1">
-                            </div>
-
-                            <button class="btn btn-outline-secondary btn-sm rounded-circle" id="toggle-overlay-btn" title="Hide Overlay" style="width: 35px; height: 35px;"><i class="bi bi-eye-slash"></i></button>
-                            <button class="btn btn-outline-secondary btn-sm rounded-circle" id="exit-fullscreen-btn" title="Exit Fullscreen" style="width: 35px; height: 35px;"><i class="bi bi-fullscreen-exit"></i></button>
+                        <div class="track-info-area">
+                            <p class="track-name" id="current-track-title">undefined</p>
+                            <button class="volume-btn" id="mute-btn"></button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Minimized overlay toggle -->
-                <button id="show-overlay-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="position: absolute; bottom: 20px; right: 20px; z-index: 20; display: none; width: 45px; height: 45px; border: 1px solid #666;" title="Show Info"><i class="bi bi-eye"></i></button>
-            </div>
-
-            <div class="audio-controls bg-dark p-3 rounded d-flex flex-column align-items-center mb-3">
-                <h5 id="current-track-title" class="mb-3">Select a track</h5>
-                <audio id="audio-player" controls class="w-100" style="outline: none;">
-                    Your browser does not support the audio element.
-                </audio>
-                <div class="mt-3">
-                    <button class="btn btn-outline-warning btn-sm me-2" id="prev-btn"><i class="bi bi-skip-backward-fill"></i> Prev</button>
-                    <button class="btn btn-outline-warning btn-sm me-2" id="next-btn">Next <i class="bi bi-skip-forward-fill"></i></button>
-                    <button class="btn btn-outline-info btn-sm me-2" id="toggle-visualizer"><i class="bi bi-magic"></i> Toggle Visualizer</button>
-                    <button class="btn btn-outline-light btn-sm" id="fullscreen-btn"><i class="bi bi-arrows-fullscreen"></i> Fullscreen</button>
+                <h4 class="text-warning mb-3 border-bottom border-secondary pb-2">Tracks</h4>
+                <div class="list-group" id="track-list" style="max-height: 300px; overflow-y: auto;">
+                    {% for track in tracks %}
+                    <button type="button" class="list-group-item list-group-item-action bg-dark text-light border-secondary track-btn"
+                            data-src="{{ track.audio_file.url }}"
+                            data-title="{{ track.title }}"
+                            data-image="{% if track.track_image %}{{ track.track_image.url }}{% endif %}">
+                        {{ forloop.counter }}. {{ track.title }}
+                    </button>
+                    {% endfor %}
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <h4 class="mb-3">Tracks</h4>
-            <div class="list-group list-group-flush bg-dark border border-secondary rounded" id="playlist-tracks">
-                {% for track in tracks %}
-                <button type="button" class="list-group-item list-group-item-action bg-dark text-light border-secondary track-btn"
-                        data-src="{{ track.audio_file.url }}"
-                        data-title="{{ track.title }}"
-                        data-image="{% if track.track_image %}{{ track.track_image.url }}{% elif playlist.cover_image %}{{ playlist.cover_image.url }}{% endif %}">
-                    {{ forloop.counter }}. {{ track.title }}
-                </button>
-                {% empty %}
-                <p class="p-3">No tracks in this playlist.</p>
-                {% endfor %}
-            </div>
-            {% if playlist.description %}
-            <div class="mt-4 p-3 bg-dark rounded text-light border border-secondary">
-                <h5>Description</h5>
-                <p>{{ playlist.description|linebreaksbr }}</p>
-            </div>
+            {% else %}
+                <div class="alert alert-secondary bg-dark text-light border-secondary">
+                    No tracks have been uploaded for this playlist yet.
+                </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Hidden Audio Element -->
+<audio id="audio-player" preload="metadata" style="display:none;"></audio>
+
+<!-- Visualizer / Movie Slideshow Overlay Container (Hidden by default) -->
+<div id="media-display" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; display: none; align-items: center; justify-content: center; overflow: hidden;">
+    {% if playlist.playlist_type == 'basic' %}
+        <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
+    {% elif playlist.playlist_type == 'movie' and movie_images %}
+        <!-- Slideshow for Movie Playlists -->
+        <div id="movie-slideshow" style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 5;">
+            <img id="slideshow-image" class="movie-slide-img" src="" alt="Slideshow Image">
+        </div>
+
+        <!-- Hidden Data for JS -->
+        <div id="movie-images-data" style="display: none;">
+            {% for m_img in movie_images %}
+                <span class="movie-img-url" data-url="{{ m_img.image.url }}"></span>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div id="fullscreen-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(17, 17, 17, 0.85); border-radius: 50px; padding: 15px 30px; border: 1px solid #444; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
+        <div class="text-start overflow-hidden me-3" style="max-width: 200px;">
+            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Select a track</h6>
+            <small class="text-warning text-truncate d-block">{{ playlist.title }}</small>
+        </div>
+
+        <button class="btn btn-outline-light btn-sm rounded-circle me-1" id="overlay-prev-btn" style="width: 40px; height: 40px;"><i class="bi bi-skip-backward-fill"></i></button>
+        <button class="btn btn-warning btn-sm rounded-circle me-1" id="overlay-play-pause-btn" style="width: 45px; height: 45px;"><i class="bi bi-play-fill fs-4"></i></button>
+        <button class="btn btn-outline-light btn-sm rounded-circle me-3" id="overlay-next-btn" style="width: 40px; height: 40px;"><i class="bi bi-skip-forward-fill"></i></button>
+
+        <!-- Time Display -->
+        <div class="d-flex align-items-center mx-2 text-white" style="font-size: 0.9rem; min-width: 80px;">
+            <span id="overlay-current-time">0:00</span>&nbsp;/&nbsp;<span id="overlay-duration">0:00</span>
+        </div>
+
+        <!-- Volume Control -->
+        <div class="d-flex align-items-center me-3" style="width: 100px;">
+            <i class="bi bi-volume-up-fill text-white me-2" id="overlay-volume-icon"></i>
+            <input type="range" id="overlay-volume" class="form-range" min="0" max="1" step="0.01" value="1">
+        </div>
+
+        <button class="btn btn-outline-secondary btn-sm rounded-circle ms-4" id="exit-visualizer-btn" title="Exit Visualizer" style="width: 40px; height: 40px;"><i class="bi bi-x-lg"></i></button>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
-<!-- Butterchurn (WebGL Milkdrop) -->
+{% if tracks %}
 <script src="https://unpkg.com/lodash"></script>
 <script src="https://unpkg.com/butterchurn"></script>
 <script src="https://unpkg.com/butterchurn-presets"></script>
@@ -99,283 +239,228 @@
         const audioPlayer = document.getElementById('audio-player');
         const trackBtns = document.querySelectorAll('.track-btn');
         const currentTrackTitle = document.getElementById('current-track-title');
-        const currentTrackImage = document.getElementById('current-track-image');
-        const slideshowImage = document.getElementById('slideshow-image');
+
+        // Player Elements
+        const playPauseBtn = document.getElementById('play-pause-btn');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const repeatBtn = document.getElementById('repeat-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationTimeEl = document.getElementById('duration-time');
+        const muteBtn = document.getElementById('mute-btn');
+        const stopBtn = document.getElementById('stop-btn');
 
-        let currentTrackIndex = 0;
-        let playlistType = "{{ playlist.playlist_type }}";
-
-        // Movie Images Array
-        let movieImages = [];
-        {% if movie_images %}
-            {% for img in movie_images %}
-                movieImages.push("{{ img.image.url }}");
-            {% endfor %}
-        {% endif %}
-
-        let slideshowInterval;
-        let currentImageIndex = 0;
-
-        function startSlideshow() {
-            if (movieImages.length > 0 && slideshowImage) {
-                slideshowImage.src = movieImages[0];
-                slideshowImage.style.display = "block";
-                clearInterval(slideshowInterval);
-                slideshowInterval = setInterval(() => {
-                    currentImageIndex = (currentImageIndex + 1) % movieImages.length;
-                    slideshowImage.src = movieImages[currentImageIndex];
-                }, 5000); // Change image every 5 seconds
-            }
-        }
-
-        function stopSlideshow() {
-            clearInterval(slideshowInterval);
-        }
-
-        const overlayTitle = document.getElementById('overlay-title');
-        const overlayImage = document.getElementById('overlay-image');
-        const overlayPlayBtn = document.getElementById('overlay-play-btn');
-
-        function loadTrack(index) {
-            if(index >= 0 && index < trackBtns.length) {
-                const btn = trackBtns[index];
-                audioPlayer.src = btn.getAttribute('data-src');
-                currentTrackTitle.textContent = btn.getAttribute('data-title');
-                overlayTitle.textContent = btn.getAttribute('data-title');
-
-                const imgSrc = btn.getAttribute('data-image');
-                if (imgSrc) {
-                    if (playlistType === 'basic' && currentTrackImage) {
-                        currentTrackImage.src = imgSrc;
-                    }
-                    overlayImage.src = imgSrc;
-                }
-
-                trackBtns.forEach(b => b.classList.remove('active', 'text-warning', 'fw-bold'));
-                btn.classList.add('active', 'text-warning', 'fw-bold');
-
-                audioPlayer.play();
-
-                if (playlistType === 'movie') {
-                    startSlideshow();
-                }
-            }
-        }
-
-        trackBtns.forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                currentTrackIndex = index;
-                loadTrack(currentTrackIndex);
-            });
-        });
-
-        audioPlayer.addEventListener('ended', () => {
-            if (currentTrackIndex < trackBtns.length - 1) {
-                currentTrackIndex++;
-                loadTrack(currentTrackIndex);
-            } else {
-                stopSlideshow();
-            }
-        });
-
-        prevBtn.addEventListener('click', () => {
-            if (currentTrackIndex > 0) {
-                currentTrackIndex--;
-                loadTrack(currentTrackIndex);
-            }
-        });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentTrackIndex < trackBtns.length - 1) {
-                currentTrackIndex++;
-                loadTrack(currentTrackIndex);
-            }
-        });
-
-        audioPlayer.addEventListener('pause', () => {
-            stopSlideshow();
-            overlayPlayBtn.innerHTML = '<i class="bi bi-play-fill" style="font-size: 1.2rem;"></i>';
-        });
-        audioPlayer.addEventListener('play', () => {
-            if (playlistType === 'movie') startSlideshow();
-            overlayPlayBtn.innerHTML = '<i class="bi bi-pause-fill" style="font-size: 1.2rem;"></i>';
-        });
-
-        // Overlay Controls
+        // Overlay Player Elements
+        const overlayPlayPauseBtn = document.getElementById('overlay-play-pause-btn');
         const overlayPrevBtn = document.getElementById('overlay-prev-btn');
         const overlayNextBtn = document.getElementById('overlay-next-btn');
         const overlayCurrentTime = document.getElementById('overlay-current-time');
         const overlayDuration = document.getElementById('overlay-duration');
         const overlayVolume = document.getElementById('overlay-volume');
         const overlayVolumeIcon = document.getElementById('overlay-volume-icon');
+        const overlayTitle = document.getElementById('overlay-title');
 
-        overlayPlayBtn.addEventListener('click', () => {
+        let currentTrackIndex = 0;
+        let isShuffle = false;
+        let isRepeat = false;
+        let originalOrder = Array.from({length: trackBtns.length}, (_, i) => i);
+        let playQueue = [...originalOrder];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function updatePlayQueue() {
+            if (isShuffle) {
+                const currentOriginalIndex = playQueue[currentTrackIndex];
+                playQueue = [...originalOrder];
+                shuffleArray(playQueue);
+
+                if (currentOriginalIndex !== undefined) {
+                    const idx = playQueue.indexOf(currentOriginalIndex);
+                    [playQueue[0], playQueue[idx]] = [playQueue[idx], playQueue[0]];
+                }
+                currentTrackIndex = 0;
+            } else {
+                const currentOriginalIndex = playQueue[currentTrackIndex];
+                playQueue = [...originalOrder];
+                currentTrackIndex = currentOriginalIndex !== undefined ? currentOriginalIndex : 0;
+            }
+        }
+
+        function loadTrack(queueIndex) {
+            if (trackBtns.length === 0) return;
+            if (queueIndex < 0 || queueIndex >= playQueue.length) return;
+
+            const originalIndex = playQueue[queueIndex];
+            const btn = trackBtns[originalIndex];
+
+            audioPlayer.src = btn.getAttribute('data-src');
+            currentTrackTitle.textContent = btn.getAttribute('data-title');
+            overlayTitle.textContent = btn.getAttribute('data-title');
+
+            trackBtns.forEach(t => t.classList.remove('active', 'text-warning'));
+            btn.classList.add('active', 'text-warning');
+
+            audioPlayer.play();
+        }
+
+        trackBtns.forEach((btn, originalIndex) => {
+            btn.addEventListener('click', () => {
+                currentTrackIndex = playQueue.indexOf(originalIndex);
+                loadTrack(currentTrackIndex);
+            });
+        });
+
+        function togglePlay() {
+            if (audioPlayer.src === "" || audioPlayer.src === window.location.href) {
+                loadTrack(currentTrackIndex);
+                return;
+            }
             if (audioPlayer.paused) {
                 audioPlayer.play();
             } else {
                 audioPlayer.pause();
             }
-        });
+        }
 
-        overlayPrevBtn.addEventListener('click', () => {
-            if (currentTrackIndex > 0) {
-                currentTrackIndex--;
-                loadTrack(currentTrackIndex);
-            }
-        });
-
-        overlayNextBtn.addEventListener('click', () => {
-            if (currentTrackIndex < trackBtns.length - 1) {
+        function nextTrack() {
+            if (currentTrackIndex < playQueue.length - 1) {
                 currentTrackIndex++;
                 loadTrack(currentTrackIndex);
-            }
-        });
-
-        // Volume Control
-        overlayVolume.addEventListener('input', (e) => {
-            audioPlayer.volume = e.target.value;
-            if (audioPlayer.volume === 0) {
-                overlayVolumeIcon.className = 'bi bi-volume-mute-fill text-white me-2';
-            } else if (audioPlayer.volume < 0.5) {
-                overlayVolumeIcon.className = 'bi bi-volume-down-fill text-white me-2';
+            } else if (isRepeat) {
+                currentTrackIndex = 0;
+                if(isShuffle) updatePlayQueue();
+                loadTrack(currentTrackIndex);
             } else {
-                overlayVolumeIcon.className = 'bi bi-volume-up-fill text-white me-2';
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
             }
+        }
+
+        function prevTrack() {
+            if (audioPlayer.currentTime > 3) {
+                audioPlayer.currentTime = 0;
+            } else if (currentTrackIndex > 0) {
+                currentTrackIndex--;
+                loadTrack(currentTrackIndex);
+            } else if (isRepeat) {
+                currentTrackIndex = playQueue.length - 1;
+                loadTrack(currentTrackIndex);
+            }
+        }
+
+        playPauseBtn.addEventListener('click', togglePlay);
+        overlayPlayPauseBtn.addEventListener('click', togglePlay);
+        nextBtn.addEventListener('click', nextTrack);
+        overlayNextBtn.addEventListener('click', nextTrack);
+        prevBtn.addEventListener('click', prevTrack);
+        overlayPrevBtn.addEventListener('click', prevTrack);
+
+        stopBtn.addEventListener('click', () => {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
         });
 
-        // Time Display
+        shuffleBtn.addEventListener('click', () => {
+            isShuffle = !isShuffle;
+            shuffleBtn.style.color = isShuffle ? '#fff' : '#3f51b5';
+            updatePlayQueue();
+        });
+
+        repeatBtn.addEventListener('click', () => {
+            isRepeat = !isRepeat;
+            repeatBtn.style.color = isRepeat ? '#fff' : '#3f51b5';
+        });
+
+        audioPlayer.addEventListener('ended', nextTrack);
+
+        audioPlayer.addEventListener('play', () => {
+            playPauseBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+            overlayPlayPauseBtn.innerHTML = '<i class="bi bi-pause-fill fs-4"></i>';
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+            playPauseBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            overlayPlayPauseBtn.innerHTML = '<i class="bi bi-play-fill fs-4"></i>';
+        });
+
         function formatTime(seconds) {
-            if (isNaN(seconds)) return "0:00";
+            if (isNaN(seconds)) return "00:00";
             const min = Math.floor(seconds / 60);
             const sec = Math.floor(seconds % 60);
-            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+            return `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
         }
 
         audioPlayer.addEventListener('timeupdate', () => {
-            overlayCurrentTime.textContent = formatTime(audioPlayer.currentTime);
-            overlayDuration.textContent = formatTime(audioPlayer.duration);
+            currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+            if (overlayCurrentTime) overlayCurrentTime.textContent = formatTime(audioPlayer.currentTime);
+            const duration = audioPlayer.duration || 0;
+            if (duration > 0) {
+                const percent = (audioPlayer.currentTime / duration) * 100;
+                progressBar.style.width = `${percent}%`;
+            }
         });
 
         audioPlayer.addEventListener('loadedmetadata', () => {
-            overlayDuration.textContent = formatTime(audioPlayer.duration);
+            durationTimeEl.textContent = formatTime(audioPlayer.duration);
+            if (overlayDuration) overlayDuration.textContent = formatTime(audioPlayer.duration);
         });
 
-        // Keyboard Controls
-        document.addEventListener('keydown', (e) => {
-            // Only capture space if not typing in an input
-            if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') return;
-
-            if (e.code === 'Space') {
-                e.preventDefault(); // Prevent scrolling
-                if (audioPlayer.paused) {
-                    audioPlayer.play();
-                } else {
-                    audioPlayer.pause();
-                }
-            } else if (e.code === 'ArrowLeft') {
-                e.preventDefault();
-                if (currentTrackIndex > 0) {
-                    currentTrackIndex--;
-                    loadTrack(currentTrackIndex);
-                }
-            } else if (e.code === 'ArrowRight') {
-                e.preventDefault();
-                if (currentTrackIndex < trackBtns.length - 1) {
-                    currentTrackIndex++;
-                    loadTrack(currentTrackIndex);
-                }
+        progressContainer.addEventListener('click', (e) => {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audioPlayer.duration;
+            if(duration) {
+                audioPlayer.currentTime = (clickX / width) * duration;
             }
         });
 
-        // Optional Fullscreen Logic
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const exitFullscreenBtn = document.getElementById('exit-fullscreen-btn');
-        const mediaDisplay = document.getElementById('media-display');
-
-        const fullscreenOverlay = document.getElementById('fullscreen-overlay');
-        const toggleOverlayBtn = document.getElementById('toggle-overlay-btn');
-        const showOverlayBtn = document.getElementById('show-overlay-btn');
-
-        let isOverlayVisible = true;
-
-        toggleOverlayBtn.addEventListener('click', () => {
-            fullscreenOverlay.style.display = 'none';
-            showOverlayBtn.style.display = 'block';
-            isOverlayVisible = false;
-        });
-
-        showOverlayBtn.addEventListener('click', () => {
-            fullscreenOverlay.style.display = 'block';
-            showOverlayBtn.style.display = 'none';
-            isOverlayVisible = true;
-        });
-
-        function enterFullscreen() {
-            // Auto-play first track if nothing is playing yet
-            if (!audioPlayer.src || audioPlayer.src.endsWith(window.location.pathname) || audioPlayer.src === "") {
-                loadTrack(0);
-
-                // Force visualizer on if it isn't already
-                if (!isVisualizerActive && document.getElementById('toggle-visualizer')) {
-                    document.getElementById('toggle-visualizer').click();
-                }
-            }
-
-            if (!document.fullscreenElement) {
-                if (mediaDisplay.requestFullscreen) {
-                    mediaDisplay.requestFullscreen();
-                } else if (mediaDisplay.webkitRequestFullscreen) { /* Safari */
-                    mediaDisplay.webkitRequestFullscreen();
-                } else if (mediaDisplay.msRequestFullscreen) { /* IE11 */
-                    mediaDisplay.msRequestFullscreen();
-                }
-            }
-        }
-
-        function exitFullscreen() {
-            if (document.fullscreenElement) {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
-        fullscreenBtn.addEventListener('click', enterFullscreen);
-        exitFullscreenBtn.addEventListener('click', exitFullscreen);
-
-        document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement) {
-                // Entered fullscreen
-                if (isOverlayVisible) {
-                    fullscreenOverlay.style.display = 'block';
-                    showOverlayBtn.style.display = 'none';
-                } else {
-                    fullscreenOverlay.style.display = 'none';
-                    showOverlayBtn.style.display = 'block';
-                }
-
-                setTimeout(() => {
-                    canvas.width = canvas.parentElement.clientWidth;
-                    canvas.height = canvas.parentElement.clientHeight;
-                    if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
-                }, 100);
+        let isMuted = false;
+        let lastVolume = 1;
+        muteBtn.addEventListener('click', () => {
+            if (isMuted) {
+                audioPlayer.volume = lastVolume;
+                muteBtn.style.opacity = '1';
+                if (overlayVolume) overlayVolume.value = lastVolume;
             } else {
-                // Exited fullscreen
-                fullscreenOverlay.style.display = 'none';
-                showOverlayBtn.style.display = 'none';
-
-                setTimeout(() => {
-                    canvas.width = canvas.parentElement.clientWidth;
-                    canvas.height = canvas.parentElement.clientHeight;
-                    if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
-                }, 100);
+                lastVolume = audioPlayer.volume;
+                audioPlayer.volume = 0;
+                muteBtn.style.opacity = '0.5';
+                if (overlayVolume) overlayVolume.value = 0;
             }
+            isMuted = !isMuted;
         });
 
-        // Butterchurn Visualizer
-        const toggleVisualizer = document.getElementById('toggle-visualizer');
+        if (overlayVolume) {
+            overlayVolume.addEventListener('input', (e) => {
+                audioPlayer.volume = e.target.value;
+                if (audioPlayer.volume === 0) {
+                    overlayVolumeIcon.className = 'bi bi-volume-mute-fill text-white me-2';
+                    muteBtn.style.opacity = '0.5';
+                    isMuted = true;
+                } else {
+                    if (audioPlayer.volume < 0.5) {
+                        overlayVolumeIcon.className = 'bi bi-volume-down-fill text-white me-2';
+                    } else {
+                        overlayVolumeIcon.className = 'bi bi-volume-up-fill text-white me-2';
+                    }
+                    muteBtn.style.opacity = '1';
+                    isMuted = false;
+                }
+            });
+        }
+
+        // --- Visualizer / Slideshow Logic ---
+        const toggleVisualizerBtn = document.getElementById('toggle-visualizer-btn');
+        const exitVisualizerBtn = document.getElementById('exit-visualizer-btn');
+        const mediaDisplay = document.getElementById('media-display');
         const canvas = document.getElementById('visualizer-canvas');
 
         let audioCtx, source, visualizer;
@@ -383,21 +468,47 @@
         let animationId;
         let presetCycleInterval;
 
+        // Movie Slideshow Variables
+        const playlistType = '{{ playlist.playlist_type }}';
+        let slideshowInterval;
+        let movieImgUrls = [];
+
+        if (playlistType === 'movie') {
+            const imgDataEls = document.querySelectorAll('.movie-img-url');
+            imgDataEls.forEach(el => movieImgUrls.push(el.getAttribute('data-url')));
+        }
+
+        function startMovieSlideshow() {
+            if (movieImgUrls.length === 0) return;
+            const slideshowImg = document.getElementById('slideshow-image');
+            let idx = 0;
+
+            slideshowImg.src = movieImgUrls[idx];
+            slideshowInterval = setInterval(() => {
+                idx = (idx + 1) % movieImgUrls.length;
+                slideshowImg.src = movieImgUrls[idx];
+            }, 5000); // Change image every 5 seconds
+        }
+
+        function stopMovieSlideshow() {
+            clearInterval(slideshowInterval);
+        }
+
         function loadRandomPreset() {
             if (visualizer) {
                 const presets = butterchurnPresets.getPresets();
                 const presetKeys = Object.keys(presets);
                 const randomPreset = presetKeys[Math.floor(Math.random() * presetKeys.length)];
-                visualizer.loadPreset(presets[randomPreset], 2.0); // 2 second blend
+                visualizer.loadPreset(presets[randomPreset], 2.0);
             }
         }
 
         function setupButterchurn() {
-            if (!audioCtx) {
+            if (!audioCtx && canvas) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-                canvas.width = canvas.parentElement.clientWidth;
-                canvas.height = canvas.parentElement.clientHeight;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
 
                 visualizer = butterchurn.default.createVisualizer(audioCtx, canvas, {
                     width: canvas.width,
@@ -409,15 +520,14 @@
                 visualizer.connectAudio(source);
 
                 loadRandomPreset();
-
-                // Cycle preset every 15 seconds
                 presetCycleInterval = setInterval(loadRandomPreset, 15000);
 
-                // Handle Resize dynamically
                 window.addEventListener('resize', () => {
-                    canvas.width = canvas.parentElement.clientWidth;
-                    canvas.height = canvas.parentElement.clientHeight;
-                    visualizer.setRendererSize(canvas.width, canvas.height);
+                    if (isVisualizerActive) {
+                        canvas.width = window.innerWidth;
+                        canvas.height = window.innerHeight;
+                        visualizer.setRendererSize(canvas.width, canvas.height);
+                    }
                 });
             }
         }
@@ -430,24 +540,78 @@
             }
         }
 
-        toggleVisualizer.addEventListener('click', () => {
-            setupButterchurn();
-
-            // Must resume audio context after user interaction
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
+        function enterVisualizer() {
+            if (playlistType === 'basic') {
+                setupButterchurn();
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
             }
 
-            isVisualizerActive = !isVisualizerActive;
-            if (isVisualizerActive) {
-                canvas.style.display = 'block';
+            if (audioPlayer.paused && (audioPlayer.src === "" || audioPlayer.src === window.location.href)) {
+                loadTrack(currentTrackIndex);
+            }
+
+            isVisualizerActive = true;
+            mediaDisplay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            if (playlistType === 'basic' && canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
                 drawVisualizer();
-            } else {
-                canvas.style.display = 'none';
-                cancelAnimationFrame(animationId);
+            } else if (playlistType === 'movie') {
+                startMovieSlideshow();
+            }
+
+            if (mediaDisplay.requestFullscreen) {
+                mediaDisplay.requestFullscreen();
+            }
+        }
+
+        function exitVisualizer() {
+            isVisualizerActive = false;
+            mediaDisplay.style.display = 'none';
+            document.body.style.overflow = '';
+            cancelAnimationFrame(animationId);
+            stopMovieSlideshow();
+
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        }
+
+        toggleVisualizerBtn.addEventListener('click', enterVisualizer);
+        exitVisualizerBtn.addEventListener('click', exitVisualizer);
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && isVisualizerActive) {
+                exitVisualizer();
             }
         });
 
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                togglePlay();
+            } else if (e.code === 'ArrowLeft') {
+                e.preventDefault();
+                prevTrack();
+            } else if (e.code === 'ArrowRight') {
+                e.preventDefault();
+                nextTrack();
+            }
+        });
+
+        // Initialize first track title
+        if (trackBtns.length > 0) {
+            currentTrackTitle.textContent = trackBtns[0].getAttribute('data-title');
+        }
     });
 </script>
+{% endif %}
 {% endblock %}

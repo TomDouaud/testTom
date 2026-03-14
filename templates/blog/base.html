@@ -39,14 +39,16 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'album_list' %}">Album of the Month</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'playlist_list' 'basic' %}">Playlists</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'playlist_list' 'movie' %}">Movie Soundtracks</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="playlistsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Playlists
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
+                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'movie' %}">Musiques de Films</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'album_list' %}">Albums du Mois</a></li>
+                        </ul>
                     </li>
                 </ul>
                 <div class="d-flex">
