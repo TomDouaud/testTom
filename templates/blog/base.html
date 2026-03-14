@@ -9,18 +9,34 @@
     {% load static %}
     <style>
         body {
-            padding-top: 60px;
-            background-color: #000;
-            background-image: url('{% static "images/bg.png" %}');
-            background-attachment: fixed;
-            background-size: cover;
-            background-position: center top;
+            padding-top: 160px; /* Increased to account for taller image navbar */
+            /* Linear gradient from #9a7341 to #e2b267 */
+            background: linear-gradient(45deg, #9a7341 20%, #e2b267);
+            /* Overlay the plouf image on top of the gradient, centered at the top */
+            background-image: url('{% static "img/Plouf.png" %}'), linear-gradient(45deg, #9a7341 20%, #e2b267);
+            background-attachment: fixed, fixed;
+            background-size: auto, cover; /* Keep image natural size, cover for gradient */
+            background-repeat: no-repeat, no-repeat;
+            background-position: center top, center top;
             color: #d8c39e;
             font-family: Arial, sans-serif;
         }
-        .navbar { background-color: rgba(0, 0, 0, 0.8); border-bottom: 1px solid #d8c39e; }
+        /* Make navbar fully transparent and remove border */
+        .navbar { background-color: transparent !important; border-bottom: none !important; }
         .navbar-brand, .nav-link { color: #d8c39e !important; font-weight: bold; }
-        .nav-link:hover { color: #fff !important; }
+        .nav-link:hover { color: #fff !important; opacity: 0.8; }
+
+        /* Ensure navbar links are images, set max-height to avoid them being too huge */
+        .nav-image-link {
+            height: 40px; /* Adjust as needed */
+            width: auto;
+            display: inline-block;
+        }
+
+        .navbar-brand .nav-image-link {
+            height: 60px; /* Slightly larger for brand */
+        }
+
         .card { background-color: rgba(0, 0, 0, 0.7); color: #d8c39e; border: 1px solid #d8c39e; }
         a { color: #f39c12; text-decoration: none; }
         a:hover { color: #e67e22; }
@@ -32,31 +48,38 @@
 <body>
 
     <nav class="navbar navbar-expand-md navbar-dark fixed-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">BadassRadio</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="container-fluid" style="justify-content: center;">
+            <a class="navbar-brand mx-3" href="{% url 'home' %}">
+                <img src="{% static 'img/image.png' %}" alt="BadassRadio" class="nav-image-link">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" style="position: absolute; right: 1rem;">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="playlistsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Playlists
+            <div class="collapse navbar-collapse" id="navbarCollapse" style="flex-grow: 0;">
+                <ul class="navbar-nav mb-2 mb-md-0 d-flex align-items-center">
+                    <li class="nav-item dropdown mx-3">
+                        <a class="nav-link dropdown-toggle p-0" href="#" id="playlistsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none;">
+                            <img src="{% static 'img/Playlists.png' %}" alt="Playlists" class="nav-image-link" style="height: 35px;">
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown">
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown" style="background-color: rgba(0,0,0,0.8);">
                             <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
                             <li><a class="dropdown-item" href="{% url 'playlist_list' 'movie' %}">Musiques de Films</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'album_list' %}">Albums du Mois</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item mx-3">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'movie' %}" style="border: none; background: none;">
+                            <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link" style="height: 25px;">
+                        </a>
+                    </li>
                 </ul>
-                <div class="d-flex">
-                    <form action="{% url 'logout' %}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-danger">Logout</button>
-                    </form>
-                </div>
+            </div>
+            <div class="d-flex" style="position: absolute; right: 1rem;">
+                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                </form>
             </div>
         </div>
     </nav>
