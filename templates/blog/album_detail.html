@@ -28,16 +28,30 @@
         background-color: #fff;
         margin-bottom: 20px;
         width: 100%;
-        max-width: 350px;
+        max-width: 800px;
+        aspect-ratio: 16 / 9;
+        position: relative;
+        display: flex;
+        flex-direction: column;
     }
 
     .player-cover-area {
-        height: 350px;
+        flex-grow: 1;
         width: 100%;
         background-color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+    }
+
+    .player-cover-area img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .player-cover-area img {
@@ -215,6 +229,39 @@
         color: #d8c39e;
     }
 
+    /* Album Cover Square Styling */
+    .album-cover-square {
+        background-color: white;
+        padding: 10px;
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        max-width: 350px; /* Adjust size as needed to fit the page */
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+
+    .album-cover-square img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* At Home Photos Container */
+    .at-home-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .at-home-image {
+        width: 100%;
+        max-width: 250px;
+        height: auto;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+
     .past-album-item {
         display: flex;
         align-items: center;
@@ -244,14 +291,16 @@
 <div class="container-fluid album-page-container mb-5 pb-5">
     <div class="row">
         <!-- Left Column: Player and Album Info -->
-        <div class="col-md-3 player-col">
+        <div class="col-md-8 player-col">
             <div class="page-title">
                 <span class="blue-text">Le vinyle d'</span>{{ album.month|date:"F"|title }}
             </div>
 
             <div class="audio-player-container">
                 <div class="player-cover-area">
-                    <!-- Blank area as in the reference image (could add track image here if wanted) -->
+                    {% if album.cover_image %}
+                        <img src="{{ album.cover_image.url }}" alt="{{ album.title }}" id="player-cover-image">
+                    {% endif %}
                 </div>
 
                 <div class="player-controls-area">
@@ -296,45 +345,42 @@
                 <p style="color: #d8c39e; margin-bottom: 5px;">L'album :</p>
                 <a href="{% url 'download_album_zip' album.pk %}" class="album-link d-block mt-1 mb-1">{{ album.title }}</a>
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
-
-                <p class="mt-4 mb-2">At home...</p>
-                {% if album.cover_image %}
-                    <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
-                {% else %}
-                    <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
-                {% endif %}
             </div>
         </div>
 
         <!-- Middle Column: Article -->
-        <div class="col-md-5 article-col">
+        <div class="col-md-4 article-col">
+            {% if album.cover_image %}
+            <div class="album-cover-square mt-5">
+                <img src="{{ album.cover_image.url }}" alt="{{ album.title }}">
+            </div>
+            {% endif %}
             <h2 class="article-title">{{ album.title }}</h2>
             <p class="article-subtitle">{{ album.artist }} - {{ album.month|date:"Y" }}</p>
 
             <div class="article-content">
                 {{ album.description|linebreaks }}
-
-                <p class="mt-5">Bonne écoute oreilles curieuses.</p>
             </div>
+
+            <!-- At Home Section -->
+            {% if album.at_home_images.exists %}
+            <div class="at-home-section mt-4">
+                <h5 style="color: #f39c12; margin-bottom: 10px;">À la maison...</h5>
+                <div class="at-home-container">
+                    {% for img in album.at_home_images.all %}
+                    <img src="{{ img.image.url }}" alt="At Home {{ forloop.counter }}" class="at-home-image">
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            <p class="mt-5">Bonne écoute oreilles curieuses.</p>
         </div>
 
         <!-- Right Column: Intro text and Past Albums -->
-        <div class="col-md-4 past-albums-col">
-            <h3 class="intro-text">
-                Chaque mois, la<br>
-                BadAssRadio<br>
-                vous invite à découvrir un<br>
-                Vinyle aux petits oignons.
-            </h3>
+        <div class="col-md-12 past-albums-col mt-5 pt-4" style="border-top: 1px dotted #e0cdb2;">
+            <h3 class="intro-text">Archives</h3>
 
-            <p class="sub-intro-text">
-                Du culte, du rare, du beau,<br>
-                sur la BadAssRadio évidemment.<br><br>
-                Bonne écoute,<br>
-                oreilles curieuses.
-            </p>
-
-            <div class="past-albums-list">
+            <div class="past-albums-list d-flex flex-wrap gap-4">
                 {% for p_album in past_albums %}
                     <a href="{% url 'album_detail' p_album.pk %}" class="past-album-item">
                         {% if p_album.cover_image %}

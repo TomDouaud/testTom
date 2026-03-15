@@ -48,37 +48,50 @@
 <body>
 
     <nav class="navbar navbar-expand-md navbar-dark fixed-top">
-        <div class="container-fluid" style="justify-content: center;">
-            <a class="navbar-brand mx-3" href="{% url 'home' %}">
-                <img src="{% static 'img/image.png' %}" alt="BadassRadio" class="nav-image-link">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" style="position: absolute; right: 1rem;">
+        <div class="container-fluid d-flex justify-content-center align-items-center position-relative">
+            <!-- Navbar Toggler for Mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" style="position: absolute; left: 1rem;">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse" style="flex-grow: 0;">
-                <ul class="navbar-nav mb-2 mb-md-0 d-flex align-items-center">
-                    <li class="nav-item dropdown mx-3">
-                        <a class="nav-link dropdown-toggle p-0" href="#" id="playlistsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none;">
+
+            <!-- Brand Logo -->
+            <a class="navbar-brand mx-auto m-md-0" href="{% url 'home' %}">
+                <img src="{% static 'img/image.png' %}" alt="BadassRadio" class="nav-image-link">
+            </a>
+
+            <!-- Navigation Links -->
+            <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
+                <ul class="navbar-nav mb-2 mb-md-0 d-flex flex-column flex-md-row align-items-center text-center mt-3 mt-md-0">
+                    <li class="nav-item mx-3 my-2 my-md-0">
+                        <a class="nav-link p-0" href="{% url 'playlist_list' 'playlist' %}" style="border: none; background: none;">
                             <img src="{% static 'img/Playlists.png' %}" alt="Playlists" class="nav-image-link" style="height: 35px;">
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown" style="background-color: rgba(0,0,0,0.8);">
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'movie' %}">Musiques de Films</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'album_list' %}">Albums du Mois</a></li>
-                        </ul>
                     </li>
-                    <li class="nav-item mx-3">
-                         <a class="nav-link p-0" href="{% url 'playlist_list' 'movie' %}" style="border: none; background: none;">
+                    <li class="nav-item mx-3 my-2 my-md-0">
+                        <a class="nav-link p-0" href="{% url 'playlist_list' 'bande_originale' %}" style="border: none; background: none;">
                             <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link" style="height: 25px;">
+                        </a>
+                    </li>
+                    <li class="nav-item mx-3 my-2 my-md-0">
+                        <a class="nav-link p-0" href="{% url 'playlist_list' 'mixtape' %}" style="border: none; background: none;">
+                            <img src="{% static 'img/Surprises.png' %}" alt="Surprises" class="nav-image-link" style="height: 25px;">
                         </a>
                     </li>
                 </ul>
             </div>
-            <div class="d-flex" style="position: absolute; right: 1rem;">
+
+            <!-- Logout Button -->
+            <div class="d-none d-md-flex" style="position: absolute; right: 1rem;">
                 <form action="{% url 'logout' %}" method="post" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Déconnexion</button>
+                </form>
+            </div>
+            <!-- Mobile Logout Button (Visible only in collapse) -->
+            <div class="d-flex d-md-none justify-content-center mt-3 w-100 collapse" id="navbarCollapseLogout">
+                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Déconnexion</button>
                 </form>
             </div>
         </div>
