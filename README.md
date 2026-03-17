@@ -6,11 +6,12 @@ Cette version abandonne WordPress/Blogger au profit d'une interface sur-mesure (
 
 ## Fonctionnalités Principales
 
-- **Albums du mois :** Articles avec titre, artiste, texte et pochette.
-- **Playlists :**
-  - *Classique :* Une liste de lecture basique (Tracks MP3) qui change l'image du lecteur selon le morceau joué.
-  - *Musiques de films (Soundtrack) :* Une liste de lecture avec un diaporama d'images (Slideshow) automatique qui défile pendant la lecture.
-- **Visualisation musicale :** Un lecteur audio exclusif avec un effet radial réagissant aux fréquences (façon *Milkdrop*), affichable en plein écran.
+- **Albums du mois :** Articles avec titre, artiste, texte, pochette sur fond blanc, et section « At Home » (diaporama de photos supplémentaires).
+- **Playlists (3 types distincts) :**
+  - *Playlists :* Une liste de lecture basique (Tracks MP3) qui change l'image du lecteur selon le morceau joué.
+  - *Bandes Originales :* Une liste de lecture avec un diaporama d'images (Slideshow) automatique au format 16:9 qui défile pendant la lecture.
+  - *Surprises (Mixtapes) :* Fonctionne sur le même principe que les Bandes Originales (lecteur 16:9 et diaporama).
+- **Visualisation musicale :** Un lecteur audio exclusif avec un effet radial réagissant aux fréquences (façon *Milkdrop*), affichable en plein écran pour les Playlists classiques.
 - **Backoffice (Admin) :** Interface Django très simple et sécurisée pour gérer les musiques et comptes.
 - **Connexion Utilisateurs :** Accès restreint pour les auditeurs avec un formulaire de réinitialisation de mot de passe (via administrateur).
 
@@ -81,10 +82,12 @@ Pour tester le lecteur audio et l'effet "Milkdrop" :
 
 1. Allez dans l'administration : `http://127.0.0.1:8000/admin`
 2. Cliquez sur **Playlists** -> *Ajouter (Add)*
-3. Remplissez un titre, et choisissez le type de playlist (`Basic Playlist` ou `Movie Soundtrack`).
-4. **Si c'est "Basic" :** Descendez dans la page, et ajoutez des "Tracks" avec un fichier Audio (.mp3) et potentiellement une image associée.
-5. **Si c'est "Movie" :** Ajoutez des Tracks audio, ET en dessous ajoutez des "Movie Images". Le lecteur fera tourner ces images en boucle de manière automatique pendant la lecture.
+3. Remplissez un titre, et choisissez le type de playlist (`Playlist`, `Bande Originale` ou `Surprises`).
+4. **Si c'est "Playlist" :** Descendez dans la page, et ajoutez des "Tracks" avec un fichier Audio (.mp3) et potentiellement une image associée.
+5. **Si c'est "Bande Originale" ou "Surprises" :** Ajoutez des Tracks audio, ET en dessous ajoutez des "Movie Images". Le lecteur affichera ces images au format 16:9 et les fera tourner en boucle de manière automatique pendant la lecture.
 6. Sauvegardez et rendez-vous sur le site public pour écouter !
-7. Sur le lecteur, cliquez sur **"Toggle Visualizer"** pour voir l'effet de particules qui réagit à la musique.
+7. Sur le lecteur, cliquez sur **"Activer Plein Écran"** pour voir l'effet de particules qui réagit à la musique.
+
+Pour les **Albums du Mois**, pensez à ajouter des images supplémentaires dans la section "At Home Images" de l'administration pour remplir la section *At Home* au bas de l'article !
 
 Bonnes écoutes ! 🎸

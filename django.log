@@ -1,0 +1,8 @@
+Watching for file changes with StatReloader
+[17/Mar/2026 09:42:10] "GET /login/ HTTP/1.1" 200 1509
+[17/Mar/2026 09:50:58] "GET /login/ HTTP/1.1" 200 1509
+[17/Mar/2026 09:51:01] "POST /login/ HTTP/1.1" 200 1742
+[17/Mar/2026 09:51:03] "GET /album/4/ HTTP/1.1" 302 0
+[17/Mar/2026 09:51:03] "GET /login/?next=/album/4/ HTTP/1.1" 200 1509
+[17/Mar/2026 09:51:03] "GET /playlist/4/ HTTP/1.1" 302 0
+[17/Mar/2026 09:51:03] "GET /login/?next=/playlist/4/ HTTP/1.1" 200 1509

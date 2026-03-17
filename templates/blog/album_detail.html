@@ -38,12 +38,34 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 15px; /* Add padding to create a white border around the image */
     }
 
     .player-cover-area img {
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+        background-color: #fff;
+    }
+
+    .athome-section {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(216, 195, 158, 0.5);
+    }
+
+    .athome-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .athome-grid img {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+        object-fit: cover;
+        aspect-ratio: 1;
     }
 
     .player-controls-area {
@@ -251,7 +273,9 @@
 
             <div class="audio-player-container">
                 <div class="player-cover-area">
-                    <!-- Blank area as in the reference image (could add track image here if wanted) -->
+                    {% if album.cover_image %}
+                    <img src="{{ album.cover_image.url }}" alt="{{ album.title }} Cover">
+                    {% endif %}
                 </div>
 
                 <div class="player-controls-area">
@@ -309,13 +333,24 @@
         <!-- Middle Column: Article -->
         <div class="col-md-5 article-col">
             <h2 class="article-title">{{ album.title }}</h2>
-            <p class="article-subtitle">{{ album.artist }} - {{ album.month|date:"Y" }}</p>
+            <p class="article-subtitle">{{ album.artist }} - {{ album.month|date:"F Y" }}</p>
 
             <div class="article-content">
                 {{ album.description|linebreaks }}
 
                 <p class="mt-5">Bonne écoute oreilles curieuses.</p>
             </div>
+
+            {% if album.athome_images.all %}
+            <div class="athome-section">
+                <h3 class="mb-4 text-warning">At Home</h3>
+                <div class="athome-grid">
+                    {% for athome in album.athome_images.all %}
+                    <img src="{{ athome.image.url }}" alt="At home photo {{ forloop.counter }}">
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Right Column: Intro text and Past Albums -->

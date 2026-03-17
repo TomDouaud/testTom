@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row mt-4">
     <div class="col-md-8">
-        <h2 class="mb-4">Current Album of the Month</h2>
+        <h2 class="mb-4">Album du Mois</h2>
         {% if latest_album %}
         <div class="card mb-4">
             <a href="{% url 'album_detail' latest_album.pk %}" class="text-decoration-none">
@@ -19,23 +19,23 @@
             </a>
         </div>
         {% else %}
-        <p>No album of the month right now.</p>
+        <p>Aucun album du mois pour l'instant.</p>
         {% endif %}
     </div>
 
     <div class="col-md-4">
-        <h3 class="mb-4">Recent Playlists</h3>
+        <h3 class="mb-4">Playlists Récentes</h3>
         <div class="list-group list-group-flush bg-dark">
             {% for playlist in recent_playlists %}
             <a href="{% url 'playlist_detail' playlist.pk %}" class="list-group-item list-group-item-action bg-dark text-light border-secondary">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1 text-warning">{{ playlist.title }}</h5>
-                    <small>{{ playlist.created_at|date:"M d, Y" }}</small>
+                    <small>{{ playlist.created_at|date:"d M Y" }}</small>
                 </div>
                 <p class="mb-1">{{ playlist.get_playlist_type_display }}</p>
             </a>
             {% empty %}
-            <p>No playlists available.</p>
+            <p>Aucune playlist disponible.</p>
             {% endfor %}
         </div>
     </div>
