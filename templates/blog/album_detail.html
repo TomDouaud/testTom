@@ -32,12 +32,19 @@
     }
 
     .player-cover-area {
-        height: 350px;
+        aspect-ratio: 1 / 1;
         width: 100%;
         background-color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    @media (max-width: 375px) {
+        .audio-player-container {
+            max-width: 100%;
+            margin: 0;
+            border: none;
+        }
     }
 
     .player-cover-area img {
@@ -251,7 +258,9 @@
 
             <div class="audio-player-container">
                 <div class="player-cover-area">
-                    <!-- Blank area as in the reference image (could add track image here if wanted) -->
+                    {% if album.cover_image %}
+                        <img src="{{ album.cover_image.url }}" alt="Cover">
+                    {% endif %}
                 </div>
 
                 <div class="player-controls-area">
@@ -346,6 +355,19 @@
                     </a>
                 {% endfor %}
             </div>
+
+            {% if album.images.all %}
+            <div class="mt-5">
+                <h4 class="mb-3">À la maison</h4>
+                <div class="row row-cols-2 row-cols-md-3 g-3">
+                    {% for album_img in album.images.all %}
+                    <div class="col">
+                        <img src="{{ album_img.image.url }}" class="img-fluid rounded shadow-sm" alt="At home">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

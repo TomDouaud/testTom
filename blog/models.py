@@ -42,14 +42,27 @@ class AlbumTrack(models.Model):
                 self.order = 1
         super().save(*args, **kwargs)
 
+class AlbumImage(models.Model):
+    album = models.ForeignKey(AlbumOfTheMonth, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='album_images/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Image {self.order} for {self.album.title}"
+
+
 class Playlist(models.Model):
     TYPE_CHOICES = (
-        ('basic', 'Basic Playlist'),
-        ('movie', 'Movie Soundtrack (Slideshow)'),
+        ('playlist', 'Playlist'),
+        ('bande_originale', 'Bande Originale'),
+        ('mixtapes', 'Mixtapes'),
     )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    playlist_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='basic')
+    playlist_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='playlist')
     cover_image = models.ImageField(upload_to='playlists/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

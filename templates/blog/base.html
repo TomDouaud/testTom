@@ -37,6 +37,18 @@
             height: 60px; /* Slightly larger for brand */
         }
 
+        @media (max-width: 375px) {
+            .nav-image-link {
+                height: 25px;
+            }
+            .navbar-brand .nav-image-link {
+                height: 40px;
+            }
+            body {
+                padding-top: 100px;
+            }
+        }
+
         .card { background-color: rgba(0, 0, 0, 0.7); color: #d8c39e; border: 1px solid #d8c39e; }
         a { color: #f39c12; text-decoration: none; }
         a:hover { color: #e67e22; }
@@ -55,22 +67,26 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" style="position: absolute; right: 1rem;">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse" style="flex-grow: 0;">
+            <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse" style="flex-grow: 0;">
                 <ul class="navbar-nav mb-2 mb-md-0 d-flex align-items-center">
-                    <li class="nav-item dropdown mx-3">
-                        <a class="nav-link dropdown-toggle p-0" href="#" id="playlistsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none;">
+                    <li class="nav-item mx-3">
+                        <a class="nav-link p-0" href="{% url 'playlist_list' 'playlist' %}" style="border: none; background: none;">
                             <img src="{% static 'img/Playlists.png' %}" alt="Playlists" class="nav-image-link" style="height: 35px;">
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown" style="background-color: rgba(0,0,0,0.8);">
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'movie' %}">Musiques de Films</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'album_list' %}">Albums du Mois</a></li>
-                        </ul>
                     </li>
                     <li class="nav-item mx-3">
-                         <a class="nav-link p-0" href="{% url 'playlist_list' 'movie' %}" style="border: none; background: none;">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'bande_originale' %}" style="border: none; background: none;">
                             <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link" style="height: 25px;">
+                        </a>
+                    </li>
+                    <li class="nav-item mx-3">
+                         <a class="nav-link p-0 text-white" href="{% url 'playlist_list' 'mixtapes' %}" style="border: none; background: none; font-size: 1.5rem; text-decoration: underline;">
+                            Surprises
+                        </a>
+                    </li>
+                    <li class="nav-item mx-3">
+                         <a class="nav-link p-0 text-white" href="{% url 'album_list' %}" style="border: none; background: none; font-size: 1.2rem; text-decoration: underline;">
+                            Albums du Mois
                         </a>
                     </li>
                 </ul>
@@ -78,7 +94,7 @@
             <div class="d-flex" style="position: absolute; right: 1rem;">
                 <form action="{% url 'logout' %}" method="post" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Déconnexion</button>
                 </form>
             </div>
         </div>
