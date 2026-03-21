@@ -473,7 +473,7 @@
         let slideshowInterval;
         let movieImgUrls = [];
 
-        if (playlistType === 'movie') {
+        if (playlistType === 'bande_originale') {
             const imgDataEls = document.querySelectorAll('.movie-img-url');
             imgDataEls.forEach(el => movieImgUrls.push(el.getAttribute('data-url')));
         }
@@ -541,7 +541,7 @@
         }
 
         function enterVisualizer() {
-            if (playlistType === 'basic') {
+            if (playlistType === 'playlist' || playlistType === 'mixtape') {
                 setupButterchurn();
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
@@ -556,12 +556,12 @@
             mediaDisplay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
-            if (playlistType === 'basic' && canvas) {
+            if ((playlistType === 'playlist' || playlistType === 'mixtape') && canvas) {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
                 drawVisualizer();
-            } else if (playlistType === 'movie') {
+            } else if (playlistType === 'bande_originale') {
                 startMovieSlideshow();
             }
 
