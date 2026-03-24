@@ -5,12 +5,17 @@ class AlbumTrackInline(admin.TabularInline):
     model = AlbumTrack
     extra = 1
 
+from .models import AtHomeImage
+class AtHomeImageInline(admin.TabularInline):
+    model = AtHomeImage
+    extra = 1
+
 @admin.register(AlbumOfTheMonth)
 class AlbumOfTheMonthAdmin(admin.ModelAdmin):
     list_display = ('title', 'artist', 'month', 'created_at')
     search_fields = ('title', 'artist')
     list_filter = ('month',)
-    inlines = [AlbumTrackInline]
+    inlines = [AlbumTrackInline, AtHomeImageInline]
 
 class TrackInline(admin.TabularInline):
     model = Track

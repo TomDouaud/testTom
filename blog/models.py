@@ -17,6 +17,17 @@ class AlbumOfTheMonth(models.Model):
     def __str__(self):
         return f"{self.title} - {self.artist} ({self.month.strftime('%B %Y')})"
 
+class AtHomeImage(models.Model):
+    album = models.ForeignKey(AlbumOfTheMonth, related_name='athome_images', on_delete=models.CASCADE, verbose_name="Album")
+    image = models.ImageField(upload_to='albums_athome/', verbose_name="Image At Home")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordre")
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Image 'At Home' {self.order} pour {self.album.title}"
+
 class AlbumTrack(models.Model):
     album = models.ForeignKey(AlbumOfTheMonth, related_name='tracks', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
@@ -44,14 +55,15 @@ class AlbumTrack(models.Model):
 
 class Playlist(models.Model):
     TYPE_CHOICES = (
-        ('basic', 'Basic Playlist'),
-        ('movie', 'Movie Soundtrack (Slideshow)'),
+        ('playlist', 'Playlist'),
+        ('bande_originale', 'Bande Originale'),
+        ('mixtapes', 'Mixtapes'),
     )
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    playlist_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='basic')
-    cover_image = models.ImageField(upload_to='playlists/', blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=200, verbose_name="Titre")
+    description = models.TextField(blank=True, verbose_name="Description")
+    playlist_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='playlist', verbose_name="Type de Playlist")
+    cover_image = models.ImageField(upload_to='playlists/', blank=True, null=True, verbose_name="Image de Couverture")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Créé le")
 
     class Meta:
         ordering = ['-created_at']
