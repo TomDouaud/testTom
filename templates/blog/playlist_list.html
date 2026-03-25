@@ -5,8 +5,10 @@
     <h2 class="text-center text-warning mb-5">
         {% if playlist_type == 'basic' %}
             Playlists Classiques
-        {% else %}
+        {% elif playlist_type == 'movie' %}
             Musiques de Films
+        {% elif playlist_type == 'mixtape' %}
+            Surprises
         {% endif %}
     </h2>
 

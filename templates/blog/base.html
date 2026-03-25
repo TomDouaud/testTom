@@ -63,7 +63,6 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown" style="background-color: rgba(0,0,0,0.8);">
                             <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'movie' %}">Musiques de Films</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'album_list' %}">Albums du Mois</a></li>
                         </ul>
@@ -73,12 +72,17 @@
                             <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link" style="height: 25px;">
                         </a>
                     </li>
+                    <li class="nav-item mx-3">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'mixtape' %}" style="border: none; background: none;">
+                            <span class="nav-image-link" style="height: 25px; color: #d8c39e; font-size: 20px; font-weight: bold; line-height: 25px; text-transform: uppercase;">Surprises</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
             <div class="d-flex" style="position: absolute; right: 1rem;">
                 <form action="{% url 'logout' %}" method="post" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Déconnexion</button>
                 </form>
             </div>
         </div>
