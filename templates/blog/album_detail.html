@@ -38,12 +38,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 20px;
     }
 
     .player-cover-area img {
         max-width: 100%;
         max-height: 100%;
-        object-fit: contain;
+        object-fit: cover;
+        aspect-ratio: 1;
     }
 
     .player-controls-area {
@@ -298,7 +300,11 @@
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
                 <p class="mt-4 mb-2">At home...</p>
-                {% if album.cover_image %}
+                {% if album.photos.exists %}
+                    {% for photo in album.photos.all %}
+                        <img src="{{ photo.image.url }}" class="at-home-img mb-2" alt="Photo de l'album à la maison">
+                    {% endfor %}
+                {% elif album.cover_image %}
                     <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
                 {% else %}
                     <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">

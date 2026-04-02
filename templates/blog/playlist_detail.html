@@ -7,17 +7,25 @@
         background-color: #fff;
         margin-bottom: 20px;
         width: 100%;
-        max-width: 350px;
+        max-width: 600px;
         margin: 0 auto;
     }
 
     .player-cover-area {
-        height: 350px;
         width: 100%;
-        background-color: #fff;
+        aspect-ratio: 16 / 9;
+        background-color: #000;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .player-cover-area img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .player-controls-area {
@@ -129,8 +137,12 @@
             {% if tracks %}
                 <div class="d-flex flex-column align-items-center mb-4">
                     <div class="audio-player-container">
-                        <div class="player-cover-area">
-                            <!-- Blank area to match Album style -->
+                        <div class="player-cover-area" id="inline-player-cover">
+                            {% if playlist.playlist_type == 'bande_originale' and movie_images %}
+                                <img id="inline-slideshow-image" src="{{ movie_images.0.image.url }}" alt="Diaporama">
+                            {% elif playlist.cover_image %}
+                                <img src="{{ playlist.cover_image.url }}" alt="Cover">
+                            {% endif %}
                         </div>
 
                         <div class="player-controls-area">
@@ -185,9 +197,9 @@
 
 <!-- Visualizer / Movie Slideshow Overlay Container (Hidden by default) -->
 <div id="media-display" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; display: none; align-items: center; justify-content: center; overflow: hidden;">
-    {% if playlist.playlist_type == 'basic' %}
+    {% if playlist.playlist_type == 'playlist' or playlist.playlist_type == 'mixtape' %}
         <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
-    {% elif playlist.playlist_type == 'movie' and movie_images %}
+    {% elif playlist.playlist_type == 'bande_originale' and movie_images %}
         <!-- Slideshow for Movie Playlists -->
         <div id="movie-slideshow" style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 5;">
             <img id="slideshow-image" class="movie-slide-img" src="" alt="Slideshow Image">
@@ -473,7 +485,7 @@
         let slideshowInterval;
         let movieImgUrls = [];
 
-        if (playlistType === 'movie') {
+        if (playlistType === 'bande_originale') {
             const imgDataEls = document.querySelectorAll('.movie-img-url');
             imgDataEls.forEach(el => movieImgUrls.push(el.getAttribute('data-url')));
         }
@@ -481,17 +493,26 @@
         function startMovieSlideshow() {
             if (movieImgUrls.length === 0) return;
             const slideshowImg = document.getElementById('slideshow-image');
+            const inlineSlideshowImg = document.getElementById('inline-slideshow-image');
             let idx = 0;
 
-            slideshowImg.src = movieImgUrls[idx];
+            if (slideshowImg) slideshowImg.src = movieImgUrls[idx];
+            if (inlineSlideshowImg) inlineSlideshowImg.src = movieImgUrls[idx];
+
             slideshowInterval = setInterval(() => {
                 idx = (idx + 1) % movieImgUrls.length;
-                slideshowImg.src = movieImgUrls[idx];
+                if (slideshowImg) slideshowImg.src = movieImgUrls[idx];
+                if (inlineSlideshowImg) inlineSlideshowImg.src = movieImgUrls[idx];
             }, 5000); // Change image every 5 seconds
         }
 
         function stopMovieSlideshow() {
             clearInterval(slideshowInterval);
+        }
+
+        // Auto-start slideshow for inline player if it's a bande originale
+        if (playlistType === 'bande_originale' && movieImgUrls.length > 0) {
+            startMovieSlideshow();
         }
 
         function loadRandomPreset() {
@@ -541,7 +562,7 @@
         }
 
         function enterVisualizer() {
-            if (playlistType === 'basic') {
+            if (playlistType === 'playlist' || playlistType === 'mixtape') {
                 setupButterchurn();
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
@@ -556,13 +577,13 @@
             mediaDisplay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
-            if (playlistType === 'basic' && canvas) {
+            if ((playlistType === 'playlist' || playlistType === 'mixtape') && canvas) {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
                 drawVisualizer();
-            } else if (playlistType === 'movie') {
-                startMovieSlideshow();
+            } else if (playlistType === 'bande_originale') {
+                // Diaporama is already running if auto-started, but let's ensure it runs
             }
 
             if (mediaDisplay.requestFullscreen) {
