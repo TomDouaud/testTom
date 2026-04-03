@@ -1,0 +1,4 @@
+Watching for file changes with StatReloader
+[03/Apr/2026 09:33:59] "GET / HTTP/1.1" 302 0
+[03/Apr/2026 09:33:59] "GET /login/?next=/ HTTP/1.1" 200 1519
+[03/Apr/2026 09:34:01] "GET /login/ HTTP/1.1" 200 1519

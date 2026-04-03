@@ -48,7 +48,7 @@ def download_album_zip(request, pk):
     return response
 
 @login_required
-def playlist_list(request, playlist_type='basic'):
+def playlist_list(request, playlist_type='playlist'):
     playlists = Playlist.objects.filter(playlist_type=playlist_type)
     return render(request, 'blog/playlist_list.html', {
         'playlists': playlists,
@@ -59,7 +59,7 @@ def playlist_list(request, playlist_type='basic'):
 def playlist_detail(request, pk):
     playlist = get_object_or_404(Playlist, pk=pk)
     tracks = playlist.tracks.all()
-    movie_images = playlist.movie_images.all() if playlist.playlist_type == 'movie' else []
+    movie_images = playlist.movie_images.all() if playlist.playlist_type == 'bande_originale' else []
 
     return render(request, 'blog/playlist_detail.html', {
         'playlist': playlist,
@@ -73,8 +73,8 @@ def password_reset_request(request):
         user = User.objects.filter(username=username).first()
         if user:
             PasswordResetRequest.objects.create(user=user)
-            messages.success(request, 'Password reset request sent to admins.')
+            messages.success(request, 'Demande de réinitialisation de mot de passe envoyée aux administrateurs.')
         else:
-            messages.error(request, 'User not found.')
+            messages.error(request, 'Utilisateur introuvable.')
         return redirect('login')
     return render(request, 'blog/password_reset_request.html')

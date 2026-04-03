@@ -8,7 +8,7 @@ class AlbumOfTheMonth(models.Model):
     artist = models.CharField(max_length=200)
     description = models.TextField()
     cover_image = models.ImageField(upload_to='albums/')
-    month = models.DateField(help_text="The month this album represents (use the 1st of the month).")
+    month = models.DateField(help_text="Le mois que cet album représente (utilisez le 1er du mois).")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -17,15 +17,26 @@ class AlbumOfTheMonth(models.Model):
     def __str__(self):
         return f"{self.title} - {self.artist} ({self.month.strftime('%B %Y')})"
 
+class AlbumPhoto(models.Model):
+    album = models.ForeignKey(AlbumOfTheMonth, related_name='photos', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='album_photos/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Photo {self.order} pour {self.album.title}"
+
 class AlbumTrack(models.Model):
     album = models.ForeignKey(AlbumOfTheMonth, related_name='tracks', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     audio_file = models.FileField(
         upload_to='album_tracks/',
-        help_text="Upload your audio file here.",
+        help_text="Uploadez votre fichier audio ici.",
         validators=[FileExtensionValidator(allowed_extensions=['mp3', 'mp4', 'wav', 'ogg', 'm4a', 'aac', 'flac'])]
     )
-    order = models.PositiveIntegerField(default=0, help_text="Will auto-increment if left at 0.")
+    order = models.PositiveIntegerField(default=0, help_text="S'auto-incrémentera si laissé à 0.")
 
     class Meta:
         ordering = ['order']
@@ -44,12 +55,13 @@ class AlbumTrack(models.Model):
 
 class Playlist(models.Model):
     TYPE_CHOICES = (
-        ('basic', 'Basic Playlist'),
-        ('movie', 'Movie Soundtrack (Slideshow)'),
+        ('playlist', 'Playlist'),
+        ('bande_originale', 'Bande Originale (Diaporama)'),
+        ('mixtape', 'Mixtape'),
     )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    playlist_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='basic')
+    playlist_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='playlist')
     cover_image = models.ImageField(upload_to='playlists/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -66,8 +78,8 @@ class Track(models.Model):
         upload_to='tracks/',
         validators=[FileExtensionValidator(allowed_extensions=['mp3', 'mp4', 'wav', 'ogg', 'm4a', 'aac', 'flac'])]
     )
-    track_image = models.ImageField(upload_to='track_images/', blank=True, null=True, help_text="Image to display while playing this track (basic mode).")
-    order = models.PositiveIntegerField(default=0, help_text="Will auto-increment if left at 0.")
+    track_image = models.ImageField(upload_to='track_images/', blank=True, null=True, help_text="Image à afficher pendant la lecture de cette piste (mode classique).")
+    order = models.PositiveIntegerField(default=0, help_text="S'auto-incrémentera si laissé à 0.")
 
     class Meta:
         ordering = ['order']
@@ -85,7 +97,7 @@ class Track(models.Model):
         super().save(*args, **kwargs)
 
 class MovieImage(models.Model):
-    playlist = models.ForeignKey(Playlist, related_name='movie_images', on_delete=models.CASCADE, help_text="For Movie Soundtracks only.")
+    playlist = models.ForeignKey(Playlist, related_name='movie_images', on_delete=models.CASCADE, help_text="Uniquement pour les Bandes Originales.")
     image = models.ImageField(upload_to='movie_images/')
     order = models.PositiveIntegerField(default=0)
 
@@ -93,7 +105,7 @@ class MovieImage(models.Model):
         ordering = ['order']
 
     def __str__(self):
-        return f"Image {self.order} for {self.playlist.title}"
+        return f"Image {self.order} pour {self.playlist.title}"
 
 class PasswordResetRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -101,4 +113,4 @@ class PasswordResetRequest(models.Model):
     is_resolved = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Reset request for {self.user.username}"
+        return f"Demande de réinitialisation pour {self.user.username}"

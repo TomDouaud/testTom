@@ -7,7 +7,7 @@
         background-color: #fff;
         margin-bottom: 20px;
         width: 100%;
-        max-width: 350px;
+        max-width: 622px;
         margin: 0 auto;
     }
 
@@ -18,6 +18,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+        overflow: hidden;
     }
 
     .player-controls-area {
@@ -102,9 +104,9 @@
     }
 
     .movie-slide-img {
-        width: 100vw;
-        height: 100vh;
-        object-fit: cover; /* ensures image fills the screen without stretching */
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         position: absolute;
         top: 0;
         left: 0;
@@ -130,7 +132,16 @@
                 <div class="d-flex flex-column align-items-center mb-4">
                     <div class="audio-player-container">
                         <div class="player-cover-area">
-                            <!-- Blank area to match Album style -->
+                            {% if playlist.playlist_type == 'bande_originale' and movie_images %}
+                                <div id="movie-slideshow" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; display: none;">
+                                    <img id="slideshow-image" class="movie-slide-img" src="" alt="Slideshow Image">
+                                </div>
+                                <div id="movie-images-data" style="display: none;">
+                                    {% for m_img in movie_images %}
+                                        <span class="movie-img-url" data-url="{{ m_img.image.url }}"></span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
 
                         <div class="player-controls-area">
@@ -160,7 +171,7 @@
                     </div>
                 </div>
 
-                <h4 class="text-warning mb-3 border-bottom border-secondary pb-2">Tracks</h4>
+                <h4 class="text-warning mb-3 border-bottom border-secondary pb-2">Pistes</h4>
                 <div class="list-group" id="track-list" style="max-height: 300px; overflow-y: auto;">
                     {% for track in tracks %}
                     <button type="button" class="list-group-item list-group-item-action bg-dark text-light border-secondary track-btn"
@@ -173,7 +184,7 @@
                 </div>
             {% else %}
                 <div class="alert alert-secondary bg-dark text-light border-secondary">
-                    No tracks have been uploaded for this playlist yet.
+                    Aucune piste n'a encore été ajoutée à cette liste de lecture.
                 </div>
             {% endif %}
         </div>
@@ -185,20 +196,8 @@
 
 <!-- Visualizer / Movie Slideshow Overlay Container (Hidden by default) -->
 <div id="media-display" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; display: none; align-items: center; justify-content: center; overflow: hidden;">
-    {% if playlist.playlist_type == 'basic' %}
+    {% if playlist.playlist_type == 'playlist' or playlist.playlist_type == 'mixtape' %}
         <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
-    {% elif playlist.playlist_type == 'movie' and movie_images %}
-        <!-- Slideshow for Movie Playlists -->
-        <div id="movie-slideshow" style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 5;">
-            <img id="slideshow-image" class="movie-slide-img" src="" alt="Slideshow Image">
-        </div>
-
-        <!-- Hidden Data for JS -->
-        <div id="movie-images-data" style="display: none;">
-            {% for m_img in movie_images %}
-                <span class="movie-img-url" data-url="{{ m_img.image.url }}"></span>
-            {% endfor %}
-        </div>
     {% endif %}
 
     <div id="fullscreen-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(17, 17, 17, 0.85); border-radius: 50px; padding: 15px 30px; border: 1px solid #444; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
@@ -472,14 +471,16 @@
         const playlistType = '{{ playlist.playlist_type }}';
         let slideshowInterval;
         let movieImgUrls = [];
+        const slideshowContainer = document.getElementById('movie-slideshow');
 
-        if (playlistType === 'movie') {
+        if (playlistType === 'bande_originale') {
             const imgDataEls = document.querySelectorAll('.movie-img-url');
             imgDataEls.forEach(el => movieImgUrls.push(el.getAttribute('data-url')));
         }
 
         function startMovieSlideshow() {
-            if (movieImgUrls.length === 0) return;
+            if (movieImgUrls.length === 0 || !slideshowContainer) return;
+            slideshowContainer.style.display = 'block';
             const slideshowImg = document.getElementById('slideshow-image');
             let idx = 0;
 
@@ -492,7 +493,22 @@
 
         function stopMovieSlideshow() {
             clearInterval(slideshowInterval);
+            // We do not hide the container here so it stays on screen
         }
+
+        // start the slideshow automatically when play starts for bande_originale
+        audioPlayer.addEventListener('play', () => {
+             if (playlistType === 'bande_originale' && !slideshowInterval) {
+                 startMovieSlideshow();
+             }
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+             if (playlistType === 'bande_originale') {
+                 stopMovieSlideshow();
+                 slideshowInterval = null;
+             }
+        });
 
         function loadRandomPreset() {
             if (visualizer) {
@@ -541,7 +557,7 @@
         }
 
         function enterVisualizer() {
-            if (playlistType === 'basic') {
+            if (playlistType === 'playlist' || playlistType === 'mixtape') {
                 setupButterchurn();
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
@@ -553,20 +569,26 @@
             }
 
             isVisualizerActive = true;
-            mediaDisplay.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
 
-            if (playlistType === 'basic' && canvas) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
-                drawVisualizer();
-            } else if (playlistType === 'movie') {
-                startMovieSlideshow();
-            }
-
-            if (mediaDisplay.requestFullscreen) {
-                mediaDisplay.requestFullscreen();
+            // Only show mediaDisplay (fullscreen overlay) if it's not a movie, or if you want visualizer
+            if (playlistType === 'playlist' || playlistType === 'mixtape') {
+                mediaDisplay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                if (canvas) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
+                    drawVisualizer();
+                }
+                if (mediaDisplay.requestFullscreen) {
+                    mediaDisplay.requestFullscreen();
+                }
+            } else if (playlistType === 'bande_originale') {
+                // If it's bande_originale, toggle visualizer button just starts the media/fullscreen on the player itself
+                 const playerContainer = document.querySelector('.audio-player-container');
+                 if (playerContainer.requestFullscreen) {
+                     playerContainer.requestFullscreen();
+                 }
             }
         }
 
@@ -575,7 +597,6 @@
             mediaDisplay.style.display = 'none';
             document.body.style.overflow = '';
             cancelAnimationFrame(animationId);
-            stopMovieSlideshow();
 
             if (document.fullscreenElement) {
                 document.exitFullscreen();

@@ -3,10 +3,12 @@
 {% block content %}
 <div class="container mt-5 mb-5 pb-5">
     <h2 class="text-center text-warning mb-5">
-        {% if playlist_type == 'basic' %}
-            Playlists Classiques
+        {% if playlist_type == 'playlist' %}
+            Playlists
+        {% elif playlist_type == 'bande_originale' %}
+            Bandes Originales
         {% else %}
-            Musiques de Films
+            Mixtapes
         {% endif %}
     </h2>
 
