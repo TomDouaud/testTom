@@ -2,11 +2,15 @@
 
 {% block content %}
 <div class="container mt-5 mb-5 pb-5">
-    <h2 class="text-center text-warning mb-5">
+    <h2 class="text-center text-warning mb-5" style="text-transform: uppercase;">
         {% if playlist_type == 'basic' %}
-            Playlists Classiques
+            Playlists
+        {% elif playlist_type == 'movie' %}
+            Bandes Originales
+        {% elif playlist_type == 'mixtape' %}
+            Surprises
         {% else %}
-            Musiques de Films
+            Musiques
         {% endif %}
     </h2>
 

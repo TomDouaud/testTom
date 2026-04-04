@@ -46,6 +46,7 @@ class Playlist(models.Model):
     TYPE_CHOICES = (
         ('basic', 'Basic Playlist'),
         ('movie', 'Movie Soundtrack (Slideshow)'),
+        ('mixtape', 'Mixtapes'),
     )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
