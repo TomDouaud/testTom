@@ -34,7 +34,10 @@
     .player-cover-area {
         height: 350px;
         width: 100%;
-        background-color: #fff;
+        background-color: white;
+        padding: 15px;
+        aspect-ratio: 1/1;
+        object-fit: contain;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -153,6 +156,10 @@
         max-width: 350px;
         margin-top: 20px;
         border: 1px solid #ccc;
+        background-color: white;
+        padding: 15px;
+        aspect-ratio: 1/1;
+        object-fit: contain;
     }
 
     /* Column 2: Article */
@@ -239,6 +246,12 @@
         font-size: 1rem;
         color: #d8c39e;
     }
+
+    @media (max-width: 768px) {
+        .album-page-container {
+            padding: 10px;
+        }
+    }
 </style>
 
 <div class="container-fluid album-page-container mb-5 pb-5">
@@ -298,11 +311,15 @@
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
                 <p class="mt-4 mb-2">At home...</p>
-                {% if album.cover_image %}
-                    <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
-                {% else %}
-                    <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
-                {% endif %}
+                {% for athome_img in album.athome_images.all %}
+                    <img src="{{ athome_img.image.url }}" class="at-home-img mb-3" alt="At home cover">
+                {% empty %}
+                    {% if album.cover_image %}
+                        <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
+                    {% else %}
+                        <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
 
