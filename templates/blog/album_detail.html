@@ -28,13 +28,13 @@
         background-color: #fff;
         margin-bottom: 20px;
         width: 100%;
-        max-width: 350px;
+        max-width: 622px;
     }
 
     .player-cover-area {
         height: 350px;
         width: 100%;
-        background-color: #fff;
+        background-color: #000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -298,16 +298,25 @@
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
                 <p class="mt-4 mb-2">At home...</p>
-                {% if album.cover_image %}
-                    <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
-                {% else %}
-                    <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
-                {% endif %}
+                {% for athome in album.at_home_images.all %}
+                    <img src="{{ athome.image.url }}" class="at-home-img" alt="At home photo">
+                {% empty %}
+                    {% if album.cover_image %}
+                        <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
+                    {% else %}
+                        <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
 
         <!-- Middle Column: Article -->
         <div class="col-md-5 article-col">
+            <div style="text-align: center; margin-bottom: 30px;">
+                {% if album.cover_image %}
+                    <img src="{{ album.cover_image.url }}" alt="{{ album.title }} Cover" style="width: 300px; height: 300px; object-fit: contain; background-color: white; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                {% endif %}
+            </div>
             <h2 class="article-title">{{ album.title }}</h2>
             <p class="article-subtitle">{{ album.artist }} - {{ album.month|date:"Y" }}</p>
 
