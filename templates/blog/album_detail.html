@@ -28,13 +28,13 @@
         background-color: #fff;
         margin-bottom: 20px;
         width: 100%;
-        max-width: 350px;
+        max-width: 800px;
     }
 
     .player-cover-area {
-        height: 350px;
+        aspect-ratio: 16/9;
         width: 100%;
-        background-color: #fff;
+        background-color: #000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -297,11 +297,11 @@
                 <a href="{% url 'download_album_zip' album.pk %}" class="album-link d-block mt-1 mb-1">{{ album.title }}</a>
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
-                <p class="mt-4 mb-2">At home...</p>
-                {% if album.cover_image %}
-                    <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
-                {% else %}
-                    <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
+                {% if album.photos.all %}
+                <p style="color: #d8c39e; margin-top: 20px;">À la maison :</p>
+                {% for photo in album.photos.all %}
+                <img src="{{ photo.image.url }}" class="at-home-img" alt="At home photo {{ forloop.counter }}">
+                {% endfor %}
                 {% endif %}
             </div>
         </div>
@@ -310,6 +310,10 @@
         <div class="col-md-5 article-col">
             <h2 class="article-title">{{ album.title }}</h2>
             <p class="article-subtitle">{{ album.artist }} - {{ album.month|date:"Y" }}</p>
+
+            {% if album.cover_image %}
+            <img src="{{ album.cover_image.url }}" class="album-cover-img" alt="{{ album.title }}">
+            {% endif %}
 
             <div class="article-content">
                 {{ album.description|linebreaks }}

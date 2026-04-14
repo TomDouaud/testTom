@@ -62,15 +62,19 @@
                             <img src="{% static 'img/Playlists.png' %}" alt="Playlists" class="nav-image-link" style="height: 35px;">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown" style="background-color: rgba(0,0,0,0.8);">
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'movie' %}">Musiques de Films</a></li>
+                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'playlist' %}">Playlists</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'album_list' %}">Albums du Mois</a></li>
                         </ul>
                     </li>
                     <li class="nav-item mx-3">
-                         <a class="nav-link p-0" href="{% url 'playlist_list' 'movie' %}" style="border: none; background: none;">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'bande_originale' %}" style="border: none; background: none;">
                             <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link" style="height: 25px;">
+                        </a>
+                    </li>
+                    <li class="nav-item mx-3">
+                         <a class="nav-link p-0 text-decoration-none" href="{% url 'playlist_list' 'mixtape' %}" style="border: none; background: none; color: #d8c39e; font-size: 1.2rem; font-weight: bold; text-transform: uppercase;">
+                            Surprises
                         </a>
                     </li>
                 </ul>
@@ -78,7 +82,7 @@
             <div class="d-flex" style="position: absolute; right: 1rem;">
                 <form action="{% url 'logout' %}" method="post" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Déconnexion</button>
                 </form>
             </div>
         </div>

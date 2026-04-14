@@ -7,14 +7,14 @@
         background-color: #fff;
         margin-bottom: 20px;
         width: 100%;
-        max-width: 350px;
+        max-width: 800px;
         margin: 0 auto;
     }
 
     .player-cover-area {
-        height: 350px;
+        aspect-ratio: 16/9;
         width: 100%;
-        background-color: #fff;
+        background-color: #000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -185,9 +185,9 @@
 
 <!-- Visualizer / Movie Slideshow Overlay Container (Hidden by default) -->
 <div id="media-display" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; display: none; align-items: center; justify-content: center; overflow: hidden;">
-    {% if playlist.playlist_type == 'basic' %}
+    {% if playlist.playlist_type == 'playlist' or playlist.playlist_type == 'mixtape' %}
         <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
-    {% elif playlist.playlist_type == 'movie' and movie_images %}
+    {% elif playlist.playlist_type == 'bande_originale' and movie_images %}
         <!-- Slideshow for Movie Playlists -->
         <div id="movie-slideshow" style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 5;">
             <img id="slideshow-image" class="movie-slide-img" src="" alt="Slideshow Image">
@@ -473,7 +473,7 @@
         let slideshowInterval;
         let movieImgUrls = [];
 
-        if (playlistType === 'movie') {
+        if (playlistType === 'bande_originale') {
             const imgDataEls = document.querySelectorAll('.movie-img-url');
             imgDataEls.forEach(el => movieImgUrls.push(el.getAttribute('data-url')));
         }
@@ -541,7 +541,7 @@
         }
 
         function enterVisualizer() {
-            if (playlistType === 'basic') {
+            if (playlistType === 'playlist' || playlistType === 'mixtape') {
                 setupButterchurn();
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
@@ -556,12 +556,12 @@
             mediaDisplay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
-            if (playlistType === 'basic' && canvas) {
+            if ((playlistType === 'playlist' || playlistType === 'mixtape') && canvas) {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
                 drawVisualizer();
-            } else if (playlistType === 'movie') {
+            } else if (playlistType === 'bande_originale') {
                 startMovieSlideshow();
             }
 
