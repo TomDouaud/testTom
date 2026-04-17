@@ -32,8 +32,9 @@
     }
 
     .player-cover-area {
-        height: 350px;
+        aspect-ratio: 16/9;
         width: 100%;
+        height: auto;
         background-color: #fff;
         display: flex;
         align-items: center;
@@ -153,6 +154,13 @@
         max-width: 350px;
         margin-top: 20px;
         border: 1px solid #ccc;
+    }
+
+    .album-cover-img {
+        aspect-ratio: 1/1;
+        background-color: white;
+        object-fit: contain;
+        width: 100%;
     }
 
     /* Column 2: Article */
@@ -298,20 +306,23 @@
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
                 <p class="mt-4 mb-2">At home...</p>
-                {% if album.cover_image %}
-                    <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
-                {% else %}
-                    <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
-                {% endif %}
+                {% for at_home in album.at_home_images.all %}
+                    <img src="{{ at_home.image.url }}" class="at-home-img" alt="At home photo for {{ album.title }}">
+                {% empty %}
+                    <p class="text-muted"><small>Aucune photo at home.</small></p>
+                {% endfor %}
             </div>
         </div>
 
         <!-- Middle Column: Article -->
-        <div class="col-md-5 article-col">
+        <div class="col-md-5 article-col text-center">
+            {% if album.cover_image %}
+                <img src="{{ album.cover_image.url }}" class="img-fluid rounded shadow-sm mb-4 album-cover-img" alt="{{ album.title }}">
+            {% endif %}
             <h2 class="article-title">{{ album.title }}</h2>
             <p class="article-subtitle">{{ album.artist }} - {{ album.month|date:"Y" }}</p>
 
-            <div class="article-content">
+            <div class="article-content text-start">
                 {{ album.description|linebreaks }}
 
                 <p class="mt-5">Bonne écoute oreilles curieuses.</p>
