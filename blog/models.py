@@ -44,12 +44,13 @@ class AlbumTrack(models.Model):
 
 class Playlist(models.Model):
     TYPE_CHOICES = (
-        ('basic', 'Basic Playlist'),
-        ('movie', 'Movie Soundtrack (Slideshow)'),
+        ('playlist', 'Playlist'),
+        ('bande_originale', 'Bande Originale (Slideshow)'),
+        ('mixtape', 'Mixtape'),
     )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    playlist_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='basic')
+    playlist_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='playlist')
     cover_image = models.ImageField(upload_to='playlists/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
