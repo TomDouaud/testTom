@@ -1,0 +1,20 @@
+Watching for file changes with StatReloader
+[25/Apr/2026 11:41:38] "GET /login/ HTTP/1.1" 200 1509
+[25/Apr/2026 11:41:41] "POST /login/ HTTP/1.1" 200 1742
+[25/Apr/2026 11:50:34] "GET /login/ HTTP/1.1" 200 1509
+[25/Apr/2026 11:50:36] "POST /login/ HTTP/1.1" 302 0
+[25/Apr/2026 11:50:36] "GET / HTTP/1.1" 200 6990
+[25/Apr/2026 11:50:36] "GET /static/img/Playlists.png HTTP/1.1" 200 5884
+[25/Apr/2026 11:50:36] "GET /static/img/image.png HTTP/1.1" 200 25622
+[25/Apr/2026 11:50:36] "GET /static/img/Surprises.png HTTP/1.1" 200 615
+[25/Apr/2026 11:50:36] "GET /static/img/BO.png HTTP/1.1" 200 8670
+[25/Apr/2026 11:50:36] "GET /static/img/Plouf.png HTTP/1.1" 200 986935
+[25/Apr/2026 11:51:43] "GET /login/ HTTP/1.1" 200 1509
+[25/Apr/2026 11:51:45] "POST /login/ HTTP/1.1" 302 0
+[25/Apr/2026 11:51:45] "GET / HTTP/1.1" 200 6990
+[25/Apr/2026 11:51:45] "GET /static/img/Playlists.png HTTP/1.1" 200 5884
+[25/Apr/2026 11:51:45] "GET /static/img/image.png HTTP/1.1" 200 25622
+[25/Apr/2026 11:51:45] "GET /static/img/BO.png HTTP/1.1" 200 8670
+[25/Apr/2026 11:51:45] "GET /static/img/Surprises.png HTTP/1.1" 200 615
+[25/Apr/2026 11:51:45] "GET /static/img/Plouf.png HTTP/1.1" 200 986935
+[25/Apr/2026 11:51:46] "GET /playlists/mixtape/ HTTP/1.1" 200 6053

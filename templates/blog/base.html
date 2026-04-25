@@ -43,6 +43,19 @@
         h1, h2, h3, h4, h5, h6 { color: #fff; text-transform: uppercase; letter-spacing: 1px; }
         .list-group-item { background-color: rgba(0, 0, 0, 0.7) !important; color: #d8c39e !important; border-color: #d8c39e !important; }
         hr.border-secondary { border-top-color: #d8c39e !important; opacity: 0.5; }
+
+        @media (max-width: 768px) {
+            .navbar-brand .nav-image-link {
+                height: 40px;
+            }
+            .nav-image-link {
+                height: 25px;
+            }
+            body {
+                padding-top: 120px;
+                background-size: cover, cover;
+            }
+        }
     </style>
 </head>
 <body>
@@ -57,20 +70,19 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse" style="flex-grow: 0;">
                 <ul class="navbar-nav mb-2 mb-md-0 d-flex align-items-center">
-                    <li class="nav-item dropdown mx-3">
-                        <a class="nav-link dropdown-toggle p-0" href="#" id="playlistsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none;">
+                    <li class="nav-item mx-3">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'playlist' %}" style="border: none; background: none;">
                             <img src="{% static 'img/Playlists.png' %}" alt="Playlists" class="nav-image-link" style="height: 35px;">
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown" style="background-color: rgba(0,0,0,0.8);">
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'movie' %}">Musiques de Films</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'album_list' %}">Albums du Mois</a></li>
-                        </ul>
                     </li>
                     <li class="nav-item mx-3">
-                         <a class="nav-link p-0" href="{% url 'playlist_list' 'movie' %}" style="border: none; background: none;">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'bande_originale' %}" style="border: none; background: none;">
                             <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link" style="height: 25px;">
+                        </a>
+                    </li>
+                    <li class="nav-item mx-3">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'mixtape' %}" style="border: none; background: none;">
+                            <img src="{% static 'img/Surprises.png' %}" alt="Surprises" class="nav-image-link" style="height: 25px;" onerror="this.onerror=null; this.src=''; this.alt='Surprises'; this.style.color='#d8c39e'; this.style.fontSize='1.5rem'; this.style.fontWeight='bold';">
                         </a>
                     </li>
                 </ul>
