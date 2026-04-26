@@ -32,18 +32,19 @@
     }
 
     .player-cover-area {
-        height: 350px;
         width: 100%;
+        aspect-ratio: 1 / 1;
         background-color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
     }
 
     .player-cover-area img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .player-controls-area {
@@ -151,6 +152,8 @@
     .at-home-img {
         width: 100%;
         max-width: 350px;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
         margin-top: 20px;
         border: 1px solid #ccc;
     }
@@ -231,6 +234,7 @@
         width: 100px;
         height: 100px;
         object-fit: cover;
+        background-color: white;
         margin-right: 20px;
         border: 1px solid #eee;
     }
@@ -297,8 +301,12 @@
                 <a href="{% url 'download_album_zip' album.pk %}" class="album-link d-block mt-1 mb-1">{{ album.title }}</a>
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
-                <p class="mt-4 mb-2">At home...</p>
-                {% if album.cover_image %}
+                <p class="mt-4 mb-2">A la maison...</p>
+                {% if album.at_home_images.exists %}
+                    {% for at_home_img in album.at_home_images.all %}
+                        <img src="{{ at_home_img.image.url }}" class="at-home-img" alt="At home {{ forloop.counter }}">
+                    {% endfor %}
+                {% elif album.cover_image %}
                     <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
                 {% else %}
                     <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
@@ -356,7 +364,7 @@
 
     <div id="fullscreen-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(17, 17, 17, 0.85); border-radius: 50px; padding: 15px 30px; border: 1px solid #444; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
         <div class="text-start overflow-hidden me-3" style="max-width: 200px;">
-            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Select a track</h6>
+            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Choisir une piste</h6>
             <small class="text-warning text-truncate d-block">{{ album.artist }}</small>
         </div>
 

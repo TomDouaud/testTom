@@ -2,14 +2,14 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Albums of the Month</h2>
+    <h2>Albums du Mois</h2>
     <hr class="border-secondary">
     <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
         {% for album in albums %}
         <div class="col">
             <div class="card h-100 bg-dark text-white border-secondary">
                 {% if album.cover_image %}
-                <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }}" style="object-fit: cover; height: 250px;">
+                <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }}" style="aspect-ratio: 1/1; object-fit: cover; background-color: white;">
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title"><a href="{% url 'album_detail' album.pk %}" class="text-warning text-decoration-none">{{ album.title }}</a></h5>
@@ -22,7 +22,7 @@
             </div>
         </div>
         {% empty %}
-        <p>No albums available.</p>
+        <p>Aucun album disponible.</p>
         {% endfor %}
     </div>
 </div>

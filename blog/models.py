@@ -42,14 +42,27 @@ class AlbumTrack(models.Model):
                 self.order = 1
         super().save(*args, **kwargs)
 
+class AtHomeImage(models.Model):
+    album = models.ForeignKey(AlbumOfTheMonth, related_name='at_home_images', on_delete=models.CASCADE, help_text="Multiple photos for the 'at home' section.")
+    image = models.ImageField(upload_to='at_home_images/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"At Home Image {self.order} for {self.album.title}"
+
+
 class Playlist(models.Model):
     TYPE_CHOICES = (
-        ('basic', 'Basic Playlist'),
-        ('movie', 'Movie Soundtrack (Slideshow)'),
+        ('playlist', 'Playlist'),
+        ('bande_originale', 'Bande Originale'),
+        ('mixtape', 'Mixtape'),
     )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    playlist_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='basic')
+    playlist_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='playlist')
     cover_image = models.ImageField(upload_to='playlists/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -85,7 +98,7 @@ class Track(models.Model):
         super().save(*args, **kwargs)
 
 class MovieImage(models.Model):
-    playlist = models.ForeignKey(Playlist, related_name='movie_images', on_delete=models.CASCADE, help_text="For Movie Soundtracks only.")
+    playlist = models.ForeignKey(Playlist, related_name='movie_images', on_delete=models.CASCADE, help_text="For Bandes Originales only.")
     image = models.ImageField(upload_to='movie_images/')
     order = models.PositiveIntegerField(default=0)
 
