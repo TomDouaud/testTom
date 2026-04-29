@@ -250,7 +250,7 @@
             </div>
 
             <div class="audio-player-container">
-                <div class="player-cover-area">
+                <div class="player-cover-area bg-white p-2">
                     <!-- Blank area as in the reference image (could add track image here if wanted) -->
                 </div>
 
@@ -297,9 +297,10 @@
                 <a href="{% url 'download_album_zip' album.pk %}" class="album-link d-block mt-1 mb-1">{{ album.title }}</a>
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
-                <p class="mt-4 mb-2">At home...</p>
+                <p class="mt-4 mb-2">À la maison...</p>
                 {% if album.cover_image %}
                     <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
+                    <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover 2">
                 {% else %}
                     <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
                 {% endif %}
@@ -356,7 +357,7 @@
 
     <div id="fullscreen-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(17, 17, 17, 0.85); border-radius: 50px; padding: 15px 30px; border: 1px solid #444; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
         <div class="text-start overflow-hidden me-3" style="max-width: 200px;">
-            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Select a track</h6>
+            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Sélectionnez une piste</h6>
             <small class="text-warning text-truncate d-block">{{ album.artist }}</small>
         </div>
 

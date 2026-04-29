@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,34 +52,33 @@
             <a class="navbar-brand mx-3" href="{% url 'home' %}">
                 <img src="{% static 'img/image.png' %}" alt="BadassRadio" class="nav-image-link">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" style="position: absolute; right: 1rem;">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <div class="d-flex" style="position: absolute; right: 1rem; z-index: 1050;">
+                <form action="{% url 'logout' %}" method="post" class="d-inline me-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Déconnexion</button>
+                </form>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
             <div class="collapse navbar-collapse" id="navbarCollapse" style="flex-grow: 0;">
-                <ul class="navbar-nav mb-2 mb-md-0 d-flex align-items-center">
-                    <li class="nav-item dropdown mx-3">
-                        <a class="nav-link dropdown-toggle p-0" href="#" id="playlistsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none;">
+                <ul class="navbar-nav mb-2 mb-md-0 d-flex flex-column flex-md-row align-items-center mt-4 mt-md-0">
+                    <li class="nav-item mx-3 my-2 my-md-0">
+                        <a class="nav-link p-0" href="{% url 'playlist_list' 'playlist' %}" style="border: none; background: none;">
                             <img src="{% static 'img/Playlists.png' %}" alt="Playlists" class="nav-image-link" style="height: 35px;">
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown" style="background-color: rgba(0,0,0,0.8);">
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
-                            <li><a class="dropdown-item" href="{% url 'playlist_list' 'movie' %}">Musiques de Films</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'album_list' %}">Albums du Mois</a></li>
-                        </ul>
                     </li>
-                    <li class="nav-item mx-3">
-                         <a class="nav-link p-0" href="{% url 'playlist_list' 'movie' %}" style="border: none; background: none;">
+                    <li class="nav-item mx-3 my-2 my-md-0">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'bande_originale' %}" style="border: none; background: none;">
                             <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link" style="height: 25px;">
                         </a>
                     </li>
+                    <li class="nav-item mx-3 my-2 my-md-0">
+                         <a class="nav-link p-0" href="{% url 'playlist_list' 'mixtape' %}" style="border: none; background: none; font-size: 1.5rem; text-transform: uppercase;">
+                            Surprises
+                        </a>
+                    </li>
                 </ul>
-            </div>
-            <div class="d-flex" style="position: absolute; right: 1rem;">
-                <form action="{% url 'logout' %}" method="post" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
-                </form>
             </div>
         </div>
     </nav>
