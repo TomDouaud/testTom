@@ -38,12 +38,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 10px; /* To give it a white frame */
     }
 
     .player-cover-area img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Make image fill the square */
     }
 
     .player-controls-area {
@@ -386,6 +387,19 @@
 <script src="https://unpkg.com/lodash"></script>
 <script src="https://unpkg.com/butterchurn"></script>
 <script src="https://unpkg.com/butterchurn-presets"></script>
+
+{% if album_images %}
+<div class="mt-5">
+    <h3 class="text-warning mb-4">At Home</h3>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+        {% for img in album_images %}
+        <div class="col">
+            <img src="{{ img.image.url }}" class="img-fluid rounded shadow" alt="At Home {{ forloop.counter }}">
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

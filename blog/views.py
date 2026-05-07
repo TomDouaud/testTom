@@ -26,10 +26,12 @@ def album_detail(request, pk):
     album = get_object_or_404(AlbumOfTheMonth, pk=pk)
     tracks = album.tracks.all()
     past_albums = AlbumOfTheMonth.objects.exclude(pk=pk).order_by('-month')
+    album_images = album.album_images.all()
     return render(request, 'blog/album_detail.html', {
         'album': album,
         'tracks': tracks,
         'past_albums': past_albums,
+        'album_images': album_images,
     })
 
 @login_required
@@ -48,7 +50,7 @@ def download_album_zip(request, pk):
     return response
 
 @login_required
-def playlist_list(request, playlist_type='basic'):
+def playlist_list(request, playlist_type='playlist'):
     playlists = Playlist.objects.filter(playlist_type=playlist_type)
     return render(request, 'blog/playlist_list.html', {
         'playlists': playlists,

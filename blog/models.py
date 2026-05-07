@@ -44,12 +44,13 @@ class AlbumTrack(models.Model):
 
 class Playlist(models.Model):
     TYPE_CHOICES = (
-        ('basic', 'Basic Playlist'),
-        ('movie', 'Movie Soundtrack (Slideshow)'),
+        ('playlist', 'Playlist'),
+        ('bande_originale', 'Bande Originale'),
+        ('mixtape', 'Mixtape'),
     )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    playlist_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='basic')
+    playlist_type = models.CharField(max_length=15, choices=TYPE_CHOICES, default='playlist')
     cover_image = models.ImageField(upload_to='playlists/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -94,6 +95,14 @@ class MovieImage(models.Model):
 
     def __str__(self):
         return f"Image {self.order} for {self.playlist.title}"
+
+class AlbumImage(models.Model):
+    album = models.ForeignKey(AlbumOfTheMonth, related_name='album_images', on_delete=models.CASCADE, help_text="For the 'at home' section.")
+    image = models.ImageField(upload_to='album_home_images/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
 
 class PasswordResetRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
