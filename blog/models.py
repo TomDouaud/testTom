@@ -8,6 +8,7 @@ class AlbumOfTheMonth(models.Model):
     artist = models.CharField(max_length=200)
     description = models.TextField()
     cover_image = models.ImageField(upload_to='albums/')
+    at_home_image = models.ImageField(upload_to='albums/', blank=True, null=True, help_text="Photo to display in the 'At home' section.")
     month = models.DateField(help_text="The month this album represents (use the 1st of the month).")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -63,6 +64,8 @@ class Playlist(models.Model):
 class Track(models.Model):
     playlist = models.ForeignKey(Playlist, related_name='tracks', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
+    artist = models.CharField(max_length=200, blank=True)
+    year = models.PositiveIntegerField(null=True, blank=True)
     audio_file = models.FileField(
         upload_to='tracks/',
         validators=[FileExtensionValidator(allowed_extensions=['mp3', 'mp4', 'wav', 'ogg', 'm4a', 'aac', 'flac'])]

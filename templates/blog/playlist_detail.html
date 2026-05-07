@@ -116,9 +116,6 @@
     <div class="row">
         <!-- Playlist details & cover -->
         <div class="col-md-5 mb-4 text-center">
-            {% if playlist.cover_image %}
-                <img src="{{ playlist.cover_image.url }}" class="img-fluid rounded border border-secondary mb-3 shadow" alt="{{ playlist.title }}" style="max-height: 300px; object-fit: cover;">
-            {% endif %}
             <h3 class="text-warning fw-bold">{{ playlist.title }}</h3>
             <span class="badge bg-secondary mb-3">{{ playlist.get_playlist_type_display }}</span>
             <p class="text-light" style="font-size: 1.1rem; line-height: 1.6;">{{ playlist.description|linebreaksbr }}</p>
@@ -130,7 +127,7 @@
                 <div class="d-flex flex-column align-items-center mb-4">
                     <div class="audio-player-container">
                         <div class="player-cover-area">
-                            <!-- Blank area to match Album style -->
+                            <img id="player-cover-img" src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
 
                         <div class="player-controls-area">
@@ -153,23 +150,27 @@
                             </div>
                         </div>
 
-                        <div class="track-info-area">
-                            <p class="track-name" id="current-track-title">undefined</p>
-                            <button class="volume-btn" id="mute-btn"></button>
+                        <div class="track-info-area flex-column align-items-start" style="padding: 0;">
+                            <div class="d-flex justify-content-between align-items-center w-100 p-2 border-bottom border-secondary" style="background-color: #e6cda3;">
+                                <p class="track-name mb-0" id="current-track-title">undefined</p>
+                            </div>
+                            <!-- Tracks inside player -->
+                            <div class="list-group w-100" id="track-list" style="max-height: 200px; overflow-y: auto; background-color: #f5e4c3; border-radius: 0 0 4px 4px;">
+                                {% for track in tracks %}
+                                <button type="button" class="list-group-item list-group-item-action track-btn"
+                                        style="background-color: transparent; border: none; border-bottom: 1px solid rgba(0,0,0,0.1); color: #333;"
+                                        data-src="{{ track.audio_file.url }}"
+                                        data-title="{{ track.title }}"
+                                        data-artist="{{ track.artist }}"
+                                        data-image="{% if track.track_image %}{{ track.track_image.url }}{% elif playlist.cover_image %}{{ playlist.cover_image.url }}{% endif %}">
+                                    <strong>{{ forloop.counter }}.</strong> {{ track.title }}
+                                    {% if track.artist %}<span class="text-muted" style="font-size: 0.85rem;"> - {{ track.artist }}</span>{% endif %}
+                                    {% if track.year %}<span class="text-muted" style="font-size: 0.8rem;">({{ track.year }})</span>{% endif %}
+                                </button>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <h4 class="text-warning mb-3 border-bottom border-secondary pb-2">Tracks</h4>
-                <div class="list-group" id="track-list" style="max-height: 300px; overflow-y: auto;">
-                    {% for track in tracks %}
-                    <button type="button" class="list-group-item list-group-item-action bg-dark text-light border-secondary track-btn"
-                            data-src="{{ track.audio_file.url }}"
-                            data-title="{{ track.title }}"
-                            data-image="{% if track.track_image %}{{ track.track_image.url }}{% endif %}">
-                        {{ forloop.counter }}. {{ track.title }}
-                    </button>
-                    {% endfor %}
                 </div>
             {% else %}
                 <div class="alert alert-secondary bg-dark text-light border-secondary">
@@ -185,10 +186,10 @@
 
 <!-- Visualizer / Movie Slideshow Overlay Container (Hidden by default) -->
 <div id="media-display" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; display: none; align-items: center; justify-content: center; overflow: hidden;">
-    {% if playlist.playlist_type == 'playlist' or playlist.playlist_type == 'mixtape' %}
+    {% if playlist.playlist_type == 'playlist' %}
         <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
-    {% elif playlist.playlist_type == 'bande_originale' and movie_images %}
-        <!-- Slideshow for Movie Playlists -->
+    {% elif (playlist.playlist_type == 'bande_originale' or playlist.playlist_type == 'mixtape') and movie_images %}
+        <!-- Slideshow for Movie Playlists and Mixtapes -->
         <div id="movie-slideshow" style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 5;">
             <img id="slideshow-image" class="movie-slide-img" src="" alt="Slideshow Image">
         </div>
@@ -202,9 +203,9 @@
     {% endif %}
 
     <div id="fullscreen-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(17, 17, 17, 0.85); border-radius: 50px; padding: 15px 30px; border: 1px solid #444; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
-        <div class="text-start overflow-hidden me-3" style="max-width: 200px;">
-            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Select a track</h6>
-            <small class="text-warning text-truncate d-block">{{ playlist.title }}</small>
+        <div class="text-start overflow-hidden me-3" style="max-width: 300px;">
+            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 0.9rem;">Select a track</h6>
+            <small class="text-warning text-truncate d-block" id="overlay-subtitle">{{ playlist.title }}</small>
         </div>
 
         <button class="btn btn-outline-light btn-sm rounded-circle me-1" id="overlay-prev-btn" style="width: 40px; height: 40px;"><i class="bi bi-skip-backward-fill"></i></button>
@@ -301,12 +302,33 @@
             const originalIndex = playQueue[queueIndex];
             const btn = trackBtns[originalIndex];
 
-            audioPlayer.src = btn.getAttribute('data-src');
-            currentTrackTitle.textContent = btn.getAttribute('data-title');
-            overlayTitle.textContent = btn.getAttribute('data-title');
+            const src = btn.getAttribute('data-src');
+            const title = btn.getAttribute('data-title');
+            const artist = btn.getAttribute('data-artist');
+            let imageSrc = btn.getAttribute('data-image');
 
-            trackBtns.forEach(t => t.classList.remove('active', 'text-warning'));
-            btn.classList.add('active', 'text-warning');
+            audioPlayer.src = src;
+            currentTrackTitle.textContent = title;
+            overlayTitle.textContent = title;
+            const subtitleEl = document.getElementById('overlay-subtitle');
+            if (subtitleEl) subtitleEl.textContent = artist ? artist : '{{ playlist.title }}';
+
+            const playerCoverImg = document.getElementById('player-cover-img');
+            if (playerCoverImg) {
+                if (imageSrc) {
+                    playerCoverImg.src = imageSrc;
+                } else {
+                    playerCoverImg.src = "{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}";
+                }
+            }
+
+            trackBtns.forEach(b => {
+                b.style.backgroundColor = 'transparent';
+                b.style.color = '#333';
+                b.style.fontWeight = 'normal';
+            });
+            btn.style.backgroundColor = 'rgba(0,0,0,0.05)';
+            btn.style.fontWeight = 'bold';
 
             audioPlayer.play();
         }
@@ -414,8 +436,8 @@
         });
 
         progressContainer.addEventListener('click', (e) => {
-            const width = progressContainer.clientWidth;
-            const clickX = e.offsetX;
+            const rect = progressContainer.getBoundingClientRect(); const width = rect.width;
+            const clickX = e.clientX - rect.left;
             const duration = audioPlayer.duration;
             if(duration) {
                 audioPlayer.currentTime = (clickX / width) * duration;
@@ -473,7 +495,7 @@
         let slideshowInterval;
         let movieImgUrls = [];
 
-        if (playlistType === 'bande_originale') {
+        if (playlistType === 'bande_originale' || playlistType === 'mixtape') {
             const imgDataEls = document.querySelectorAll('.movie-img-url');
             imgDataEls.forEach(el => movieImgUrls.push(el.getAttribute('data-url')));
         }
@@ -541,7 +563,7 @@
         }
 
         function enterVisualizer() {
-            if (playlistType === 'playlist' || playlistType === 'mixtape') {
+            if (playlistType === 'playlist') {
                 setupButterchurn();
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
@@ -556,12 +578,12 @@
             mediaDisplay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
-            if ((playlistType === 'playlist' || playlistType === 'mixtape') && canvas) {
+            if (playlistType === 'playlist' && canvas) {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
                 drawVisualizer();
-            } else if (playlistType === 'bande_originale') {
+            } else if (playlistType === 'bande_originale' || playlistType === 'mixtape') {
                 startMovieSlideshow();
             }
 

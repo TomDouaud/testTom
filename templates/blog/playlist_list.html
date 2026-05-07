@@ -13,10 +13,22 @@
     </h2>
 
     <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-4 justify-content-center">
+        {% if playlist_type == 'playlist' and latest_album %}
+        <div class="col">
+            <a href="{% url 'album_detail' latest_album.pk %}" class="text-decoration-none">
+                <div class="ratio ratio-1x1 shadow-sm rounded overflow-hidden" style="border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s; background-color: transparent;">
+                    {% if latest_album.cover_image %}
+                        <img src="{{ latest_album.cover_image.url }}" alt="{{ latest_album.title }}" class="w-100 h-100 object-fit-contain hover-zoom">
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+        {% endif %}
+
         {% for playlist in playlists %}
         <div class="col">
             <a href="{% url 'playlist_detail' playlist.pk %}" class="text-decoration-none">
-                <div class="ratio ratio-1x1 shadow-sm rounded overflow-hidden" style="border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s;">
+                <div class="ratio ratio-1x1 shadow-sm rounded overflow-hidden" style="border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s; background-color: transparent;">
                     {% if playlist.cover_image %}
                         <img src="{{ playlist.cover_image.url }}" alt="{{ playlist.title }}" class="w-100 h-100 object-fit-cover hover-zoom">
                     {% else %}

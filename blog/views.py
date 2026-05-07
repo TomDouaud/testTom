@@ -52,9 +52,11 @@ def download_album_zip(request, pk):
 @login_required
 def playlist_list(request, playlist_type='playlist'):
     playlists = Playlist.objects.filter(playlist_type=playlist_type)
+    latest_album = AlbumOfTheMonth.objects.first()
     return render(request, 'blog/playlist_list.html', {
         'playlists': playlists,
-        'playlist_type': playlist_type
+        'playlist_type': playlist_type,
+        'latest_album': latest_album,
     })
 
 @login_required
