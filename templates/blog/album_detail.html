@@ -38,12 +38,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 10px; /* To give it a white frame */
     }
 
     .player-cover-area img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Make image fill the square */
     }
 
     .player-controls-area {
@@ -251,7 +252,7 @@
 
             <div class="audio-player-container">
                 <div class="player-cover-area">
-                    <!-- Blank area as in the reference image (could add track image here if wanted) -->
+                    <img id="player-cover-img" src="{% if album.cover_image %}{{ album.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}" alt="Cover">
                 </div>
 
                 <div class="player-controls-area">
@@ -274,23 +275,26 @@
                     </div>
                 </div>
 
-                <div class="track-info-area">
-                    <p class="track-name" id="current-track-title">undefined</p>
-                    <button class="volume-btn" id="mute-btn"></button> <!-- Small blue block for volume -->
+                <div class="track-info-area flex-column align-items-start" style="padding: 0;">
+                    <div class="d-flex justify-content-between align-items-center w-100 p-2 border-bottom border-secondary" style="background-color: #e6cda3;">
+                        <p class="track-name mb-0" id="current-track-title">undefined</p>
+                    </div>
+                    <!-- Tracks inside player -->
+                    <div class="list-group w-100" id="track-list" style="max-height: 200px; overflow-y: auto; background-color: #f5e4c3; border-radius: 0 0 4px 4px;">
+                        {% for track in tracks %}
+                        <button type="button" class="list-group-item list-group-item-action track-item"
+                                style="background-color: transparent; border: none; border-bottom: 1px solid rgba(0,0,0,0.1); color: #333;"
+                                data-src="{{ track.audio_file.url }}"
+                                data-title="{{ track.title }}">
+                            <strong>{{ forloop.counter }}.</strong> {{ track.title }}
+                        </button>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 
             <!-- Hidden Audio Element -->
             <audio id="audio-player" preload="metadata" style="display:none;"></audio>
-
-            <!-- Track List -->
-            <div id="track-list" class="mt-3 list-group" style="max-height: 150px; overflow-y: auto; font-size: 0.85rem; border-radius: 0;">
-                {% for track in tracks %}
-                    <button class="list-group-item list-group-item-action track-item bg-dark text-light border-secondary" data-src="{{ track.audio_file.url }}" data-title="{{ track.title }}" style="padding: 5px 10px;">
-                        {{ forloop.counter }}. {{ track.title }}
-                    </button>
-                {% endfor %}
-            </div>
 
             <div class="album-info-section mt-4">
                 <p style="color: #d8c39e; margin-bottom: 5px;">L'album :</p>
@@ -355,8 +359,8 @@
     <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
 
     <div id="fullscreen-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(17, 17, 17, 0.85); border-radius: 50px; padding: 15px 30px; border: 1px solid #444; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
-        <div class="text-start overflow-hidden me-3" style="max-width: 200px;">
-            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 1rem;">Select a track</h6>
+        <div class="text-start overflow-hidden me-3" style="max-width: 300px;">
+            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 0.9rem;">Select a track</h6>
             <small class="text-warning text-truncate d-block">{{ album.artist }}</small>
         </div>
 
@@ -386,6 +390,24 @@
 <script src="https://unpkg.com/lodash"></script>
 <script src="https://unpkg.com/butterchurn"></script>
 <script src="https://unpkg.com/butterchurn-presets"></script>
+
+{% if album.at_home_image %}
+<div class="mt-5 text-center">
+    <h3 class="text-warning mb-4">At Home</h3>
+    <img src="{{ album.at_home_image.url }}" class="img-fluid rounded shadow" style="max-width: 100%;" alt="At Home">
+</div>
+{% elif album_images %}
+<div class="mt-5 text-center">
+    <h3 class="text-warning mb-4">At Home</h3>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 justify-content-center">
+        {% for img in album_images %}
+        <div class="col">
+            <img src="{{ img.image.url }}" class="img-fluid rounded shadow" alt="At Home {{ forloop.counter }}">
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -567,8 +589,8 @@
         });
 
         progressContainer.addEventListener('click', (e) => {
-            const width = progressContainer.clientWidth;
-            const clickX = e.offsetX;
+            const rect = progressContainer.getBoundingClientRect(); const width = rect.width;
+            const clickX = e.clientX - rect.left;
             const duration = audioPlayer.duration;
             if(duration) {
                 audioPlayer.currentTime = (clickX / width) * duration;
