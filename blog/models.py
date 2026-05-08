@@ -8,6 +8,7 @@ class AlbumOfTheMonth(models.Model):
     artist = models.CharField(max_length=200)
     description = models.TextField()
     cover_image = models.ImageField(upload_to='albums/')
+    at_home_image = models.ImageField(upload_to='albums/', blank=True, null=True, help_text="Photo to display in the 'At home' section.")
     month = models.DateField(help_text="The month this album represents (use the 1st of the month).")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -50,7 +51,7 @@ class Playlist(models.Model):
     )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    playlist_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='playlist')
+    playlist_type = models.CharField(max_length=15, choices=TYPE_CHOICES, default='playlist')
     cover_image = models.ImageField(upload_to='playlists/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -63,6 +64,8 @@ class Playlist(models.Model):
 class Track(models.Model):
     playlist = models.ForeignKey(Playlist, related_name='tracks', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
+    artist = models.CharField(max_length=200, blank=True)
+    year = models.PositiveIntegerField(null=True, blank=True)
     audio_file = models.FileField(
         upload_to='tracks/',
         validators=[FileExtensionValidator(allowed_extensions=['mp3', 'mp4', 'wav', 'ogg', 'm4a', 'aac', 'flac'])]
@@ -95,6 +98,14 @@ class MovieImage(models.Model):
 
     def __str__(self):
         return f"Image {self.order} for {self.playlist.title}"
+
+class AlbumImage(models.Model):
+    album = models.ForeignKey(AlbumOfTheMonth, related_name='album_images', on_delete=models.CASCADE, help_text="For the 'at home' section.")
+    image = models.ImageField(upload_to='album_home_images/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
 
 class PasswordResetRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
