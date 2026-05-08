@@ -1,43 +1,75 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-<div class="row mt-4">
-    <div class="col-md-8">
-        <h2 class="mb-4">L'album du mois !</h2>
-        {% if latest_album %}
-        <div class="card mb-4">
-            <a href="{% url 'album_detail' latest_album.pk %}" class="text-decoration-none">
-                {% if latest_album.cover_image %}
-                <img src="{{ latest_album.cover_image.url }}" class="card-img-top" alt="{{ latest_album.title }}">
-                {% endif %}
-                <div class="card-body">
-                    <h3 class="card-title text-warning">{{ latest_album.title }} - {{ latest_album.artist }}</h3>
-                    <h5 class="text-muted">{{ latest_album.month|date:"F Y" }}</h5>
-                    <p class="card-text text-light">{{ latest_album.description|linebreaksbr }}</p>
-                    <p class="card-text mt-3"><small class="text-warning">Écouter les morceaux de l'album &rarr;</small></p>
-                </div>
-            </a>
-        </div>
-        {% else %}
-        <p>No album of the month right now.</p>
-        {% endif %}
+<style>
+    /* Conteneur principal pour centrer le texte */
+    .home-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding-top: 50px;
+        color: #ffffff; /* Texte tout en blanc */
+        line-height: 1.6;
+    }
+
+    /* Titre principal en gras */
+    .home-title {
+        font-weight: 800;
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+        text-transform: none; /* On garde la casse naturelle pour ce message */
+    }
+
+    .home-text {
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+    }
+
+    .home-signature {
+        margin-top: 50px;
+        font-weight: bold;
+    }
+
+    /* Style spécifique pour les listes d'infos à la fin */
+    .info-list {
+        margin-top: 30px;
+        list-style: none;
+        padding: 0;
+    }
+
+    .info-list li {
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="home-container">
+    <h1 class="home-title">Bienvenue sur la nouvelle, nouvelle BadAssRadio</h1>
+
+    <div class="home-text">
+        <p>
+            Sur terre, sur mer, et dans les airs, sur ordinateur tablettes ou smartphones, 
+            la Badass renait de ses cendres tel le phoenix déployant ses ailes polyphoniques 
+            pour mieux vous éclabousser les oreilles.
+        </p>
+        
+        <p>
+            Un grand merci à mon frère Michaël qui a œuvré comme un chef pour que la BadAssRadio 
+            renaisse en version RESPONSIVE. Une refonte totale de la BadAss pour une lecture 
+            et une navigation optimale sur tout support. Vive la BadAssRadio 2.0 !
+        </p>
+        
+        <p>Merci Bro'.</p>
     </div>
 
-    <div class="col-md-4">
-        <h3 class="mb-4">Dernières playlists</h3>
-        <div class="list-group list-group-flush bg-dark">
-            {% for playlist in recent_playlists %}
-            <a href="{% url 'playlist_detail' playlist.pk %}" class="list-group-item list-group-item-action bg-dark text-light border-secondary">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1 text-warning">{{ playlist.title }}</h5>
-                    <small>{{ playlist.created_at|date:"M d, Y" }}</small>
-                </div>
-                <p class="mb-1">{{ playlist.get_playlist_type_display }}</p>
-            </a>
-            {% empty %}
-            <p>No playlists available.</p>
-            {% endfor %}
-        </div>
+    <ul class="info-list">
+        <li>Retrouvez les Playlists d'origines + des nouveautés.</li>
+        <li>Désormais les morceaux sont téléchargeables (icône à coté du titre).</li>
+        <li>N'hésitez pas à ajouter vos commentaires sur le BadAssChat (en bas de page).</li>
+        <li>Ce BadAssChat servira aussi pour vous informer sur les nouveautés.</li>
+    </ul>
+
+    <div class="home-signature">
+        <p>Votre serviteur<br>
+        <span style="font-size: 1.3rem;">Sebastien</span></p>
     </div>
 </div>
 {% endblock %}
