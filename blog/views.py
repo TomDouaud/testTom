@@ -63,7 +63,7 @@ def playlist_list(request, playlist_type='playlist'):
 def playlist_detail(request, pk):
     playlist = get_object_or_404(Playlist, pk=pk)
     tracks = playlist.tracks.all()
-    movie_images = playlist.movie_images.all() if playlist.playlist_type == 'movie' else []
+    movie_images = playlist.movie_images.all() if playlist.playlist_type == 'bande_originale' else []
 
     return render(request, 'blog/playlist_detail.html', {
         'playlist': playlist,
