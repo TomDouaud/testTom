@@ -303,11 +303,16 @@
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
                 <p class="mt-4 mb-2">À la maison...</p>
-                {% if album.cover_image %}
+                {% if album.at_home_image %}
+                    <img src="{{ album.at_home_image.url }}" class="at-home-img" alt="At home cover">
+                {% elif album.cover_image %}
                     <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
                 {% else %}
                     <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
                 {% endif %}
+                {% for img in album.album_images.all %}
+                    <img src="{{ img.image.url }}" class="at-home-img mt-2" alt="At home image">
+                {% endfor %}
             </div>
         </div>
 
@@ -718,12 +723,6 @@
         toggleVisualizerBtn.addEventListener('click', enterVisualizer);
         exitVisualizerBtn.addEventListener('click', exitVisualizer);
 
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && isVisualizerActive) {
-                exitVisualizer();
-            }
-        });
-
         // Keyboard Controls
         document.addEventListener('keydown', (e) => {
             if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') return;
@@ -741,7 +740,7 @@
         });
 
         // Initialize first track title
-        if (trackItems.length > 0) {
+        if (trackItems.length > 0 && currentTrackTitle) {
             currentTrackTitle.textContent = trackItems[0].getAttribute('data-title');
         }
     });

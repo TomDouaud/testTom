@@ -164,9 +164,9 @@
                     {% for track in tracks %}
                     <button type="button" class="list-group-item list-group-item-action bg-dark text-light border-secondary track-btn"
                             data-src="{{ track.audio_file.url }}"
-                            data-title="{{ track.title }}"
+                            data-title="{{ track.title }} {% if track.artist %}- {{ track.artist }}{% endif %} {% if track.year %}({{ track.year }}){% endif %}"
                             data-image="{% if track.track_image %}{{ track.track_image.url }}{% endif %}">
-                        {{ forloop.counter }}. {{ track.title }}
+                        {{ forloop.counter }}. {{ track.title }} {% if track.artist %}- {{ track.artist }}{% endif %} {% if track.year %}({{ track.year }}){% endif %}
                     </button>
                     {% endfor %}
                 </div>
@@ -184,7 +184,7 @@
 
 <!-- Visualizer / Movie Slideshow Overlay Container (Hidden by default) -->
 <div id="media-display" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; display: none; align-items: center; justify-content: center; overflow: hidden;">
-    {% if playlist.playlist_type == 'playlist' %}
+    {% if playlist.playlist_type == 'playlist' or playlist.playlist_type == 'mixtape' %}
         <canvas id="visualizer-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
     {% elif playlist.playlist_type == 'bande_originale' and movie_images %}
         <!-- Slideshow for Movie Playlists -->
@@ -413,8 +413,9 @@
         });
 
         progressContainer.addEventListener('click', (e) => {
-            const width = progressContainer.clientWidth;
-            const clickX = e.offsetX;
+            const rect = progressContainer.getBoundingClientRect();
+            const width = rect.width;
+            const clickX = e.clientX - rect.left;
             const duration = audioPlayer.duration;
             if(duration) {
                 audioPlayer.currentTime = (clickX / width) * duration;
@@ -540,7 +541,7 @@
         }
 
         function enterVisualizer() {
-            if (playlistType === 'playlist') {
+            if (playlistType === 'playlist' || playlistType === 'mixtape') {
                 setupButterchurn();
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
@@ -555,7 +556,7 @@
             mediaDisplay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
-            if (playlistType === 'playlist' && canvas) {
+            if ((playlistType === 'playlist' || playlistType === 'mixtape') && canvas) {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
@@ -583,12 +584,6 @@
 
         toggleVisualizerBtn.addEventListener('click', enterVisualizer);
         exitVisualizerBtn.addEventListener('click', exitVisualizer);
-
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && isVisualizerActive) {
-                exitVisualizer();
-            }
-        });
 
         // Keyboard Controls
         document.addEventListener('keydown', (e) => {
