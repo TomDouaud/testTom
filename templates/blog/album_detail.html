@@ -3,14 +3,14 @@
 {% block content %}
 <style>
     .album-page-container {
-        max-width: 1200px;
+        max-width: 1100px;
         margin: 0 auto;
-        padding-top: 40px;
+        padding-top: 60px;
     }
 
     /* Column 1: Player */
     .player-col {
-        padding-right: 30px;
+        padding-right: 15px;
     }
 
     .page-title {
@@ -31,14 +31,15 @@
         max-width: 350px;
     }
 
-    .player-cover-area {
-        height: 350px;
-        width: 100%;
-        background-color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+   .player-cover-area {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Force le carré parfait peu importe la largeur */
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
 
     .player-cover-area img {
         width: 100%;
@@ -99,23 +100,31 @@
         position: relative;
     }
 
-    .track-info-area {
-        background-color: #e6cda3;
-        border-top: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 10px 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    #track-list {
+    background-color: #e6cda3 !important;
+}
+
+/* Style de base des pistes : Texte bleu sur fond sable */
+    .track-item {
+        background-color: #e6cda3 !important;
+        color: #3f51b5 !important;
+        border-bottom: 1px solid rgba(63, 81, 181, 0.2) !important; /* Bordure bleue très légère */
+        font-size: 0.9rem;
+        transition: background-color 0.2s;
     }
 
-    .track-name {
-        color: #3f51b5;
-        font-size: 0.9rem;
-        font-weight: bold;
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+/* Piste active ou survolée : Effet grisé/assombri */
+    .track-item.active, 
+    .track-item:hover {
+        background-color: #d4bc96 !important; /* Un sable plus foncé/grisé */
+        color: #3f51b5 !important; /* On garde le texte bleu pour la lisibilité */
+        border: 1px solid #3f51b5 !important;
+    }
+
+/* On enlève l'ombre bleue par défaut de Bootstrap au clic */
+    .track-item:focus {
+        background-color: #d4bc96 !important;
+        box-shadow: none !important;
     }
 
     .volume-btn {
@@ -152,14 +161,14 @@
         width: 100%;
         max-width: 350px;
         margin-top: 20px;
-        border: 1px solid #ccc;
+        border: none;
     }
 
     /* Column 2: Article */
     .article-col {
-        background-color: #dcedc8; /* Light green background */
-        padding: 30px;
-        min-height: 100vh;
+        background-color: #d4e2c8; /* Light green background */
+        padding: 40px 30px; /* Plus d'espace interne pour le texte */
+        min-height: auto; /* On laisse le contenu décider de la hauteur */
         border-radius: 8px;
     }
 
@@ -196,24 +205,23 @@
 
     /* Column 3: Past Albums */
     .past-albums-col {
-        padding-left: 40px;
+        padding-left: 15px;
     }
 
     .intro-text {
-        font-size: 1.1rem;
-        font-weight: bold;
-        line-height: 1.5;
-        margin-bottom: 30px;
-        color: #fff;
-        text-transform: none;
-        letter-spacing: normal;
-    }
+    font-size: 1.0rem; /* Un peu plus grand */
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 25px;
+    color: #000000; /* Blanc pur pour bien ressortir sur le fond marron */
+}
 
     .sub-intro-text {
-        font-size: 1rem;
-        margin-bottom: 40px;
-        color: #d8c39e;
-    }
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #000000; /* Presque blanc */
+    opacity: 0.9;
+}
 
     .past-album-item {
         display: flex;
@@ -232,21 +240,20 @@
         height: 100px;
         object-fit: cover;
         margin-right: 20px;
-        border: 1px solid #eee;
     }
 
     .past-album-date {
         font-size: 1rem;
-        color: #d8c39e;
+        color: #000000;
     }
 </style>
 
 <div class="container-fluid album-page-container mb-5 pb-5">
-    <div class="row">
-        <!-- Left Column: Player and Album Info -->
+    <div class="row justify-content-center gx-lg-5">            
+    <!-- Left Column: Player and Album Info -->
         <div class="col-md-3 player-col">
             <div class="page-title">
-                <span class="blue-text">Le vinyle d'</span>{{ album.month|date:"F"|title }}
+                <span class="blue-text">Le vinyle du mois de </span>{{ album.month|date:"F"|title }}
             </div>
 
             <div class="audio-player-container">
@@ -275,21 +282,16 @@
                 </div>
 
                 <div class="track-info-area flex-column align-items-start" style="padding: 0;">
-                    <div class="d-flex justify-content-between align-items-center w-100 p-2 border-bottom border-secondary" style="background-color: #e6cda3;">
-                        <p class="track-name mb-0" id="current-track-title">undefined</p>
-                    </div>
-                    <!-- Tracks inside player -->
-                    <div class="list-group w-100" id="track-list" style="max-height: 200px; overflow-y: auto; background-color: #f5e4c3; border-radius: 0 0 4px 4px;">
-                        {% for track in tracks %}
-                        <button type="button" class="list-group-item list-group-item-action track-item"
-                                style="background-color: transparent; border: none; border-bottom: 1px solid rgba(0,0,0,0.1); color: #333;"
-                                data-src="{{ track.audio_file.url }}"
-                                data-title="{{ track.title }}">
-                            <strong>{{ forloop.counter }}.</strong> {{ track.title }}
-                        </button>
-                        {% endfor %}
-                    </div>
-                </div>
+    <div class="list-group w-100" id="track-list" style="max-height: 200px; overflow-y: auto; background-color: #e6cda3; border-radius: 0 0 4px 4px;">
+        {% for track in tracks %}
+        <button type="button" class="list-group-item list-group-item-action track-item"
+                data-src="{{ track.audio_file.url }}"
+                data-title="{{ track.title }}">
+            <strong>{{ forloop.counter }}.</strong> {{ track.title }}
+        </button>
+        {% endfor %}
+    </div>
+</div>
             </div>
 
             <!-- Hidden Audio Element -->
@@ -310,7 +312,7 @@
         </div>
 
         <!-- Middle Column: Article -->
-        <div class="col-md-5 article-col">
+        <div class="col-md-6 article-col">
             <h2 class="article-title">{{ album.title }}</h2>
             <p class="article-subtitle">{{ album.artist }} - {{ album.month|date:"Y" }}</p>
 
@@ -322,7 +324,7 @@
         </div>
 
         <!-- Right Column: Intro text and Past Albums -->
-        <div class="col-md-4 past-albums-col">
+        <div class="col-md-3 past-albums-col">
             <h3 class="intro-text">
                 Chaque mois, la<br>
                 BadAssRadio<br>
@@ -390,23 +392,7 @@
 <script src="https://unpkg.com/butterchurn"></script>
 <script src="https://unpkg.com/butterchurn-presets"></script>
 
-{% if album.at_home_image %}
-<div class="mt-5 text-center">
-    <h3 class="text-warning mb-4">At Home</h3>
-    <img src="{{ album.at_home_image.url }}" class="img-fluid rounded shadow" style="max-width: 100%;" alt="At Home">
-</div>
-{% elif album_images %}
-<div class="mt-5 text-center">
-    <h3 class="text-warning mb-4">At Home</h3>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 justify-content-center">
-        {% for img in album_images %}
-        <div class="col">
-            <img src="{{ img.image.url }}" class="img-fluid rounded shadow" alt="At Home {{ forloop.counter }}">
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -476,11 +462,14 @@
             const item = trackItems[originalIndex];
 
             audioPlayer.src = item.getAttribute('data-src');
-            currentTrackTitle.textContent = item.getAttribute('data-title');
-            overlayTitle.textContent = item.getAttribute('data-title');
+            
+            // Modifie ces lignes pour éviter les erreurs :
+            if (currentTrackTitle) currentTrackTitle.textContent = item.getAttribute('data-title');
+            if (overlayTitle) overlayTitle.textContent = item.getAttribute('data-title');
 
-            trackItems.forEach(t => t.classList.remove('active', 'text-warning'));
-            item.classList.add('active', 'text-warning');
+            // On retire l'ancienne classe text-warning qui mettait du orange/marron
+            trackItems.forEach(t => t.classList.remove('active')); 
+            item.classList.add('active');
 
             audioPlayer.play();
         }
