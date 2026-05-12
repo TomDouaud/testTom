@@ -1,0 +1,12 @@
+Watching for file changes with StatReloader
+Error: That port is already in use.
+[12/May/2026 12:29:48] "GET /login/ HTTP/1.1" 200 1509
+[12/May/2026 12:29:50] "POST /login/ HTTP/1.1" 302 0
+[12/May/2026 12:29:50] "GET / HTTP/1.1" 200 7298
+[12/May/2026 12:29:50] "GET /static/img/Surprise.png HTTP/1.1" 200 5218
+[12/May/2026 12:29:50] "GET /static/img/Playlists.png HTTP/1.1" 200 5884
+[12/May/2026 12:29:50] "GET /static/img/BO.png HTTP/1.1" 200 8670
+[12/May/2026 12:29:50] "GET /static/img/image.png HTTP/1.1" 200 25622
+[12/May/2026 12:29:50] "GET /static/img/Plouf.png HTTP/1.1" 200 986935
+[12/May/2026 12:29:50] "GET /playlists/playlist/ HTTP/1.1" 200 6914
+[12/May/2026 12:29:50] "GET /static/images/default.jpg HTTP/1.1" 200 121880
