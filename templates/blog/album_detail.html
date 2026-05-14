@@ -303,11 +303,11 @@
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
                 <p class="mt-4 mb-2">À la maison...</p>
-                {% if album.cover_image %}
-                    <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
-                {% else %}
-                    <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
-                {% endif %}
+                {% for image in album_images %}
+                    <img src="{{ image.image.url }}" class="at-home-img" alt="At home image">
+                {% empty %}
+                    <p style="color: #aaa; font-style: italic;">Aucune photo à la maison.</p>
+                {% endfor %}
             </div>
         </div>
 
@@ -361,7 +361,7 @@
 
     <div id="fullscreen-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(17, 17, 17, 0.85); border-radius: 50px; padding: 15px 30px; border: 1px solid #444; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
         <div class="text-start overflow-hidden me-3" style="max-width: 300px;">
-            <h6 id="overlay-title" class="mb-0 text-white text-truncate" style="font-size: 0.9rem;">Sélectionnez une piste</h6>
+            <h6 id="overlay-title" class="mb-0  text-truncate" style="font-size: 0.9rem;">Sélectionnez une piste</h6>
             <small class="text-warning text-truncate d-block">{{ album.artist }}</small>
         </div>
 
@@ -370,13 +370,13 @@
         <button class="btn btn-outline-light btn-sm rounded-circle me-3" id="overlay-next-btn" style="width: 40px; height: 40px;"><i class="bi bi-skip-forward-fill"></i></button>
 
         <!-- Time Display -->
-        <div class="d-flex align-items-center mx-2 text-white" style="font-size: 0.9rem; min-width: 80px;">
+        <div class="d-flex align-items-center mx-2 " style="font-size: 0.9rem; min-width: 80px;">
             <span id="overlay-current-time">0:00</span>&nbsp;/&nbsp;<span id="overlay-duration">0:00</span>
         </div>
 
         <!-- Volume Control -->
         <div class="d-flex align-items-center me-3" style="width: 100px;">
-            <i class="bi bi-volume-up-fill text-white me-2" id="overlay-volume-icon"></i>
+            <i class="bi bi-volume-up-fill  me-2" id="overlay-volume-icon"></i>
             <input type="range" id="overlay-volume" class="form-range" min="0" max="1" step="0.01" value="1">
         </div>
 
@@ -605,14 +605,14 @@
             overlayVolume.addEventListener('input', (e) => {
                 audioPlayer.volume = e.target.value;
                 if (audioPlayer.volume === 0) {
-                    overlayVolumeIcon.className = 'bi bi-volume-mute-fill text-white me-2';
+                    overlayVolumeIcon.className = 'bi bi-volume-mute-fill  me-2';
                     muteBtn.style.opacity = '0.5';
                     isMuted = true;
                 } else {
                     if (audioPlayer.volume < 0.5) {
-                        overlayVolumeIcon.className = 'bi bi-volume-down-fill text-white me-2';
+                        overlayVolumeIcon.className = 'bi bi-volume-down-fill  me-2';
                     } else {
-                        overlayVolumeIcon.className = 'bi bi-volume-up-fill text-white me-2';
+                        overlayVolumeIcon.className = 'bi bi-volume-up-fill  me-2';
                     }
                     muteBtn.style.opacity = '1';
                     isMuted = false;
