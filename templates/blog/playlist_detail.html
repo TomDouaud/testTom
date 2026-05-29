@@ -540,7 +540,7 @@
         }
 
         function enterVisualizer() {
-            if (playlistType === 'playlist') {
+            if (playlistType === 'playlist' || playlistType === 'mixtape') {
                 setupButterchurn();
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
@@ -555,7 +555,7 @@
             mediaDisplay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
 
-            if (playlistType === 'playlist' && canvas) {
+            if ((playlistType === 'playlist' || playlistType === 'mixtape') && canvas) {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);

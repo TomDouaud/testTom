@@ -1,0 +1,10 @@
+Watching for file changes with StatReloader
+[29/May/2026 11:42:14] "GET /login/ HTTP/1.1" 200 1509
+[29/May/2026 11:43:09] "GET /login/ HTTP/1.1" 200 1509
+[29/May/2026 11:43:10] "POST /login/ HTTP/1.1" 302 0
+[29/May/2026 11:43:10] "GET / HTTP/1.1" 200 7276
+[29/May/2026 11:43:10] "GET /static/img/BO.png HTTP/1.1" 200 8670
+[29/May/2026 11:43:10] "GET /static/img/Surprise.png HTTP/1.1" 200 5218
+[29/May/2026 11:43:10] "GET /static/img/Playlists.png HTTP/1.1" 200 5884
+[29/May/2026 11:43:10] "GET /static/img/image.png HTTP/1.1" 200 25622
+[29/May/2026 11:43:10] "GET /static/img/Plouf.png HTTP/1.1" 200 986935
