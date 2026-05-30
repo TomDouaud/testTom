@@ -13,7 +13,7 @@ class AlbumOfTheMonth(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-month']
+        ordering = ['-month', 'title']
 
     def __str__(self):
         return f"{self.title} - {self.artist} ({self.month.strftime('%B %Y')})"

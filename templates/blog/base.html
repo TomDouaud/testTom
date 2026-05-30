@@ -45,6 +45,52 @@
         h1, h2, h3, h4, h5, h6 { color: #fff; text-transform: uppercase; letter-spacing: 1px; }
         .list-group-item { background-color: rgba(0, 0, 0, 0.7) !important; color: #d8c39e !important; border-color: #d8c39e !important; }
         hr.border-secondary { border-top-color: #d8c39e !important; opacity: 0.5; }
+
+        .brand-image {
+            height: 140px;
+            padding-left: 80px;
+        }
+
+        .nav-item-image {
+            height: 25px;
+            margin-top: 40px;
+        }
+
+        .nav-item-image-last {
+            height: 25px;
+            margin-top: 40px;
+            padding-right: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .brand-image {
+                height: 80px;
+                padding-left: 0;
+            }
+            .nav-item-image {
+                height: 20px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+            .nav-item-image-last {
+                height: 20px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+                padding-right: 0;
+            }
+            .navbar-collapse {
+                background-color: rgba(0, 0, 0, 0.8);
+                padding: 10px;
+                border-radius: 8px;
+            }
+            .navbar-brand {
+                margin-left: 0 !important;
+            }
+            .container-fluid {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -52,7 +98,7 @@
     <nav class="navbar navbar-expand-md navbar-dark">
         <div class="container-fluid d-flex align-items-center justify-content-between px-4">
             <a class="navbar-brand ms-4" href="{% url 'home' %}">
-                <img src="{% static 'img/image.png' %}" alt="BadassRadio" class="nav-image-link" style="height: 140px; padding-left: 80px;">
+                <img src="{% static 'img/image.png' %}" alt="BadassRadio" class="nav-image-link brand-image">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -61,7 +107,7 @@
                 <ul class="navbar-nav mb-2 mb-md-0 d-flex align-items-center">
                     <li class="nav-item mx-3">
                         <a class="nav-link p-0" href="{% url 'playlist_list' 'playlist' %}" style="border: none; background: none;">
-                            <img src="{% static 'img/Playlists.png' %}" alt="Playlists" class="nav-image-link" style="height: 25px; margin-top: 40px;">
+                            <img src="{% static 'img/Playlists.png' %}" alt="Playlists" class="nav-image-link nav-item-image">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="playlistsDropdown" style="background-color: rgba(0,0,0,0.8);">
                             <li><a class="dropdown-item" href="{% url 'playlist_list' 'basic' %}">Classiques</a></li>
@@ -72,12 +118,12 @@
                     </li>
                     <li class="nav-item mx-3">
                          <a class="nav-link p-0" href="{% url 'playlist_list' 'bande_originale' %}" style="border: none; background: none;">
-                            <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link" style="height: 25px; margin-top: 40px;">
+                            <img src="{% static 'img/BO.png' %}" alt="Bandes Originales" class="nav-image-link nav-item-image">
                         </a>
                     </li>
                     <li class="nav-item mx-3">
                          <a class="nav-link p-0" href="{% url 'playlist_list' 'mixtape' %}" style="border: none; background: none;">
-                            <img src="{% static 'img/Surprise.png' %}" alt="Surprises" class="nav-image-link" style="height: 25px; margin-top: 40px; padding-right: 80px;">
+                            <img src="{% static 'img/Surprise.png' %}" alt="Surprises" class="nav-image-link nav-item-image-last">
                         </a>
                     </li>
                 </ul>

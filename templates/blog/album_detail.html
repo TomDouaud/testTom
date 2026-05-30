@@ -380,7 +380,9 @@
             <input type="range" id="overlay-volume" class="form-range" min="0" max="1" step="0.01" value="1">
         </div>
 
-        <button class="btn btn-outline-secondary btn-sm rounded-circle ms-4" id="exit-visualizer-btn" title="Exit Visualizer" style="width: 40px; height: 40px;"><i class="bi bi-x-lg"></i></button>
+        <button class="btn btn-outline-light btn-sm rounded-circle ms-2" id="toggle-fullscreen-btn" title="Toggle Fullscreen" style="width: 40px; height: 40px;"><i class="bi bi-arrows-fullscreen"></i></button>
+
+        <button class="btn btn-outline-secondary btn-sm rounded-circle ms-2" id="exit-visualizer-btn" title="Exit Visualizer" style="width: 40px; height: 40px;"><i class="bi bi-x-lg"></i></button>
     </div>
 </div>
 
@@ -697,11 +699,6 @@
             if(visualizer) visualizer.setRendererSize(canvas.width, canvas.height);
 
             drawVisualizer();
-
-            // Auto enter fullscreen API
-            if (mediaDisplay.requestFullscreen) {
-                mediaDisplay.requestFullscreen();
-            }
         }
 
         function exitVisualizer() {
@@ -715,14 +712,23 @@
             }
         }
 
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                mediaDisplay.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
         toggleVisualizerBtn.addEventListener('click', enterVisualizer);
         exitVisualizerBtn.addEventListener('click', exitVisualizer);
 
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && isVisualizerActive) {
-                exitVisualizer();
-            }
-        });
+        const toggleFullscreenBtn = document.getElementById('toggle-fullscreen-btn');
+        if (toggleFullscreenBtn) {
+            toggleFullscreenBtn.addEventListener('click', toggleFullscreen);
+        }
 
         // Keyboard Controls
         document.addEventListener('keydown', (e) => {
