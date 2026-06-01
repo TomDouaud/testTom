@@ -33,7 +33,7 @@
 
    .player-cover-area {
     width: 100%;
-    aspect-ratio: 1 / 1; /* Force le carré parfait peu importe la largeur */
+    aspect-ratio: 16 / 9; /* Responsive 16:9 aspect ratio */
     background-color: #fff;
     display: flex;
     align-items: center;
@@ -44,7 +44,7 @@
     .player-cover-area img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Make image fill the square */
+        object-fit: cover; /* Make image fill the area */
     }
 
     .player-controls-area {
