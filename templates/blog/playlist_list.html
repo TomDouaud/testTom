@@ -40,9 +40,7 @@
             <a href="{% url 'album_detail' latest_album.pk %}" class="text-decoration-none">
                 <div class="playlist-card">
                     <div class="ratio ratio-1x1">
-                        {% if latest_album.cover_image %}
-                            <img src="{{ latest_album.cover_image.url }}" alt="{{ latest_album.title }}" class="playlist-img">
-                        {% endif %}
+                        <img src="/static/img/vinyl-month.png" alt="Vinyle du mois" class="playlist-img">
                     </div>
                     <p class="text-center mt-2 small text-white" style="font-style: italic;">Vinyle du mois</p>
                 </div>

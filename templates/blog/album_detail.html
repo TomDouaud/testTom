@@ -303,10 +303,20 @@
                 <p class="album-size" style="color: #aaa;">(Télécharger ZIP)</p>
 
                 <p class="mt-4 mb-2">À la maison...</p>
-                {% if album.cover_image %}
+                {% if album.at_home_image %}
+                    <img src="{{ album.at_home_image.url }}" class="at-home-img" alt="At home cover">
+                {% elif album.cover_image %}
                     <img src="{{ album.cover_image.url }}" class="at-home-img" alt="At home cover">
                 {% else %}
                     <img src="/static/images/default.jpg" class="at-home-img" alt="At home cover">
+                {% endif %}
+
+                {% if album_images %}
+                    <div class="mt-3">
+                    {% for album_image in album_images %}
+                        <img src="{{ album_image.image.url }}" class="at-home-img mt-2" alt="At home image {{ forloop.counter }}">
+                    {% endfor %}
+                    </div>
                 {% endif %}
             </div>
         </div>
