@@ -77,8 +77,8 @@ def password_reset_request(request):
         user = User.objects.filter(username=username).first()
         if user:
             PasswordResetRequest.objects.create(user=user)
-            messages.success(request, 'Password reset request sent to admins.')
+            messages.success(request, 'Demande de réinitialisation envoyée aux administrateurs.')
         else:
-            messages.error(request, 'User not found.')
+            messages.error(request, 'Utilisateur non trouvé.')
         return redirect('login')
     return render(request, 'blog/password_reset_request.html')
