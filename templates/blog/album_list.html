@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Albums of the Month</h2>
+    <h2>Albums du Mois</h2>
     <hr class="border-secondary">
     <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
         {% for album in albums %}
@@ -22,7 +22,7 @@
             </div>
         </div>
         {% empty %}
-        <p>No albums available.</p>
+        <p>Aucun album disponible.</p>
         {% endfor %}
     </div>
 </div>
